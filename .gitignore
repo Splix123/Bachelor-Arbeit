@@ -325,7 +325,11 @@ TSWLatexianTemp*
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
 
+#vscode
+.vscode/
+
 # Rest
 *.syg
 *.syi
+.DS_Store
 *Notes*
