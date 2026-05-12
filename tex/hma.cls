@@ -651,3 +651,6 @@ intoc=true]%
 	%	\space to proceed, ignoring \protect\foo.
 	%}
 %\fi%
+
+
+\usepackage{todonotes}
