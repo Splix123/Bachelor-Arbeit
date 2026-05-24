@@ -236,11 +236,14 @@ citestyle=numeric-comp,         % Legt den Stil für die Zitate im Text fest
 %      alphabetic: Zitate als Kürzel und Jahr [Ein05]
 %      authoryear: Zitate Author und Jahr [Einstein (1905)]
 hyperref=true,                  % Hyperlinks für Zitate
-maxbibnames=999,                % Maximale Anzahl der Autoren-Namen im Literaturverzeichnis
+maxbibnames=3,                % Maximale Anzahl der Autoren-Namen im Literaturverzeichnis
 maxcitenames=2,                 % Maximale Anzahl von Namen in einem Zitat
 mincitenames=1                  % Minimale Anzahl von Namen in einem Zitat
 ]{biblatex}      % Literaturverwaltung mit BibLaTeX
 
+\DefineBibliographyStrings{german}{
+  andothers = {et\addabbrvspace al\adddot} % "et al." für mehr als 3 Autoren
+}
 
 % Trennung von URLs im Literaturverzeichnis (große Werte [> 10000] verhindern die Trennung)
 \defcounter{biburlnumpenalty}{10} % Strafe für Trennung in URL nach Zahl
@@ -266,6 +269,8 @@ intoc=true]%
 
 % Tabellenzellen mit mehreren Zeilen
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{s}{>{\hsize=.3\hsize}l}
 \newcolumntype{F}{>{\hsize=\dimexpr2\hsize+2\tabcolsep+\arrayrulewidth\relax}X}
 
@@ -653,4 +658,9 @@ intoc=true]%
 %\fi%
 
 
-\usepackage{todonotes}
+\usepackage{todonotes} %DEL
+\usepackage{float} %Einordnen
+\usepackage{tipa}%Einordnen
+\newcommand{\ipa}[1]{%
+  {\fontfamily{cmr}\selectfont\textipa{#1}}%
+}
