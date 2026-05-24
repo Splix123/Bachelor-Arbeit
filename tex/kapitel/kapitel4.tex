@@ -1,12 +1,454 @@
-\chapter{Prototypische Implementierung}
+\chapter{Konzeption und Architektur}
+Die Konzeption und Architektur des Offline"=Sprachassistenten bilden einen essenziellen Teil der Entwicklung und stellen dar, welche Anforderungen sich für einen lokalen und datenschutzfreundlichen Assistenten ergeben und wie diese in eine geeignete Systemarchitektur überführt werden können. Damit werden sie zur Verbindung zwischen den theoretischen Grundlagen und der späteren prototypischen Umsetzung und legen fest, wie einzelne Komponenten zusammenwirken, der Ablauf einer Sprachinteraktion gesteuert wird und nach welchen Kriterien die eingesetzten Technologien ausgewählt werden.
+
+
 \section{Anforderungsanalyse}
-Test1
+Durch eine Anforderungsanalyse kann eine effektive Basis für die spätere Auswahl geeigneter Technologien sowie für architektonische und technische Entscheidungen innerhalb der Implementierung geschaffen werden. Anhand der Motivation einen möglichst datenschutzfreundlichen und lokal betriebenen Sprachassistenten zu entwickeln, ergeben sich besondere Anforderungen hinsichtlich Datenschutz, Offlinefähigkeit, Ressourcenverbrauch und praktischer Nutzbarkeit. Diese Anforderungen werden folgend in funktionale Anforderungen, und nicht"=funktionale Anforderungen unterteilt.\todo{clearpages anpassen!!!}
 
-\section{Auswahl der Entwicklungsplattform und Komponenten}
-Test2
 
-\section{Umsetzung}
-Test3
+\subsection{Funktionale Anforderungen}
+Funktionale Anforderungen beschreiben die konkreten Fähigkeiten und Funktionen, die der Sprachassistent bereitstellen muss, um definierte Anwendungsfälle zu erfüllen. Hierbei ergeben sich für das Artefakt insgesamt sechs dedizierte Anforderungen, die mithilfe des Volere"=Requirements"=Specification"=Templates \autocite{masteringRequirementsProcess} von Suzanne Robertson et al. strukturiert dargestellt werden.
 
-\section{Demonstration}
-Test4
+\clearpage
+\snowcard
+{F1}
+{F}
+{Hoch}
+{Lokale Wake"=Word"=Erkennung}
+{Architekturkonzept}
+{}
+{Das System muss dauerhaft lokal auf ein definiertes Wake"=Word hören können. Nach der Erkennung des Wake"=Words soll automatisch die Aufnahme der Spracheingabe gestartet werden. Zusätzlich muss erkannt werden, wann der Nutzer seine Eingabe beendet hat, sodass die Aufnahme selbstständig gestoppt werden kann.}
+{Das System erkennt das definierte Wake"=Word zuverlässig und startet anschließend automatisch die Sprachaufnahme. Nach Beendigung der Spracheingabe wird die Aufnahme selbstständig beendet, ohne dass eine manuelle Interaktion erforderlich ist.}
+{}
+
+\snowcard
+{F2}
+{F}
+{Hoch}
+{Lokale Speech"=To"=Text"=Verarbeitung}
+{Architekturkonzept}
+{}
+{Die aufgenommene Spracheingabe muss mithilfe eines lokalen \gls{stt}"=Systems in Text umgewandelt werden. Dabei soll der Sprachassistent typische Spracheingaben zuverlässig verarbeiten können. Die erzeugte Transkription dient als Grundlage für die weitere Verarbeitung innerhalb des Systems.}
+{Gesprochene Spracheingaben werden lokal verarbeitet und als verständliche Texttranskription in einem Chat-Fenster ausgegeben. Die erzeugte Transkription kann anschließend erfolgreich durch weitere Systemkomponenten weiterverarbeitet werden.}
+{}
+\clearpage
+
+\snowcard
+{F3}
+{F}
+{Hoch}
+{Lokale Verarbeitung durch ein \gls{llm}}
+{Architekturkonzept}
+{}
+{Zur Interpretation der Nutzereingabe muss die Generierung einer passenden Antwort durch ein lokal ausführbares \gls{llm} erfolgen. Dieses soll die Sprachverarbeitung auf dem auf dem selben Gerät gewährleisten, ohne dabei Daten an externe Dienste zu versenden. }
+{Das System erzeugt auf Basis der Nutzereingabe verständliche und kontextbezogene Antworten. Frühere Interaktionen werden teilweise berücksichtigt. Die gesamte Verarbeitung erfolgt lokal ohne Nutzung externer Cloud"=Dienste.}
+{}
+
+\snowcard
+{F4}
+{F}
+{Hoch}
+{Lokale Sprachsynthese}
+{Architekturkonzept}
+{}
+{Das System muss generierte Antworten mithilfe eines lokalen \gls{tts}"=Systems in gesprochene Sprache umwandeln können. Die Ausgabe soll vollständig lokal erzeugt werden, um eine durchgängige Offlinefähigkeit sicherzustellen. Dabei muss die Sprachausgabe verständlich und mit möglichst geringer Verzögerung erfolgen.}
+{Textantworten werden in verständliche Sprache umgewandelt und mit geringer Verzögerung verständlich ausgegeben. Die Sprachsynthese erfolgt vollständig lokal.}
+{}
+\clearpage
+
+\snowcard
+{F5}
+{F}
+{Mittel}
+{Begrenzung des Gesprächskontexts}
+{Nutzer}
+{}
+{Vergangene Nutzeranfragen und die dazugehörigen Antworten des Sprachassistenten dürfen bei der Generierung neuer Antworten nur im selben konsekutiven Gespräch berücksichtigt werden. Diese Anfragen müssen daraufhin dauerhaft gelöscht werden und dürfen anschließend nicht wiederaufrufbar sein. Eine langfristige Speicherung benutzerrelevanter Informationen ist ausschließlich über den Systemprompt zulässig.}
+{Nach Beendigung eines konsekutiven Gesprächs müssen alle während dieses Gesprächs gespeicherten Nutzeranfragen und Antworten automatisch gelöscht werden. Bei einer neuen Sitzung darf das System keine Inhalte aus vorherigen Gesprächen zur Antwortgenerierung verwenden oder wiederaufrufen können. In einem Test muss nachgewiesen werden, dass frühere Gesprächsinhalte weder im Kontext der Antwortgenerierung enthalten sind noch über Systemfunktionen abrufbar sind. Langfristig verfügbare benutzerrelevante Informationen dürfen ausschließlich aus dem Systemprompt stammen.}
+{}
+
+\snowcard
+{F6}
+{F}
+{Mittel}
+{Modulare Systemarchitektur}
+{Architekturkonzept}
+{}
+{Der Prototyp soll modular aufgebaut sein, sodass einzelne Komponenten wie Wake"=Word"=Erkennung, \gls{stt}, \gls{llm} oder \gls{tts} unabhängig voneinander ausgetauscht oder erweitert werden können. Dadurch soll die Architektur flexibel bleiben und unterschiedliche Modelle oder Optimierungen unterstützen.}
+{Einzelne Komponenten des Systems können unabhängig voneinander ersetzt oder erweitert werden, ohne dass die gesamte Systemarchitektur angepasst werden muss.}
+{}
+
+Da der Sprachassistent im Rahmen der Arbeit nur prototypisch umgesetzt wird, liegt der Fokus primär auf der Umsetzung der grundlegenden Verarbeitungskette eines lokal betriebenen Sprachassistenzsystems. Erweiterte Funktionen kommerzieller Systeme, wie komplexe Smart"=Home"=Integrationen, Benutzerprofile oder Internetrecherchen, sind nicht Bestandteil der funktionalen Anforderungen des Prototyps.
+
+
+\subsection{Nicht-funktionale Anforderungen}
+Neben den funktionalen Anforderungen spielen auch nicht"=funktionale Anforderungen eine zentrale Rolle bei der Entwicklung des Prototyps. Diese beschreiben nicht die konkreten Funktionen des Systems, sondern die qualitativen Eigenschaften und Rahmenbedingungen, unter denen der Sprachassistent betrieben werden soll und werden hier mit dem Quality"=Attribute"=Scenario Template \autocite{softwareArchitecturePractice} nach Len Bass et al. beschrieben.
+
+\qas
+{NF1}
+{Hoch}
+{Lokale Datenverarbeitung}
+{Entwickler}
+{Der Benutzer startet eine Sprachinteraktion}
+{Sprachassistenzsystem}
+{Das System befindet sich im normalen Betriebszustand}
+{Alle Sprachdaten werden ausschließlich lokal verarbeitet und nicht an externe Dienste übertragen}
+{Keine externe Datenübertragung}
+
+\qas
+{NF2}
+{Hoch}
+{Offlinefähigkeit}
+{Endbenutzer}
+{Das System wird ohne Internetverbindung genutzt}
+{Sprachassistenzsystem}
+{Es besteht keine aktive Netzwerkverbindung}
+{Der Sprachassistent bleibt weiterhin nutzbar}
+{Alle Kernfunktionen sind offline verfügbar}
+
+\qas
+{NF3}
+{Hoch}
+{Ressourceneffizienz}
+{Entwickler}
+{Der Sprachassistent wird auf ressourcenbeschränkter Hardware ausgeführt}
+{Sprachassistenzsystem}
+{Das System läuft auch auf kompakter Hardware}
+{Die Sprachverarbeitung bleibt stabil und nutzbar}
+{Ausführung auf Geräten wie dem Raspberry Pi möglich}
+
+\qas
+{NF4}
+{Hoch}
+{Reaktionsgeschwindigkeit}
+{Benutzer}
+{Der Benutzer stellt eine Sprachanfrage}
+{Sprachassistenzsystem}
+{Das System befindet sich im normalen Betriebszustand}
+{Eine Antwort wird ohne lange Verzögerung ausgegeben}
+{Antwort innerhalb weniger Sekunden}
+\clearpage
+
+\qas
+{NF5}
+{Mittel}
+{Wartbarkeit und Nachvollziehbarkeit}
+{Entwickler}
+{Die Implementierung wird erweitert oder evaluiert}
+{Softwarearchitektur}
+{Der Quellcode und die Dokumentation liegen vollständig vor}
+{Die einzelnen Verarbeitungsschritte sind nachvollziehbar dokumentiert}
+{Klare modulare Struktur der Implementierung}
+
+\qas
+{NF6}
+{Mittel}
+{Plattformunabhängigkeit}
+{Entwickler}
+{Der Sprachassistent wird auf unterschiedlicher Hardware ausgeführt}
+{Sprachassistenzsystem}
+{Das System wird auf verschiedenen Plattformen bereitgestellt}
+{Der Prototyp bleibt auf unterschiedlichen Geräten lauffähig}
+{Ausführung auf Raspberry Pi und Desktop-Systemen möglich}
+
+Auch bei den nicht"=funktionalen Anforderungen liegt der Fokus auf den für lokal betriebenen Sprachassistenten wesentlichen Funktionen. Erweiterte Aspekte wie die Anpassbarkeit oder die Sicherheit des Systems sind zwar relevant, werden jedoch im Rahmen der vorliegenden Arbeit nicht explizit als Anforderungen formuliert, da sie den Rahmen des Prototyps überschreiten und für die Bewertung der grundlegenden Umsetzbarkeit nicht zentral sind.
+
+
+\section{Systemarchitektur}
+Die gewählte Architektur ergibt sich unmittelbar aus den zuvor formulierten funktionalen und nicht"=funktionalen Anforderungen. Da der Sprachassistent vollständig lokal betrieben werden soll, müssen alle Verarbeitungsschritte auf dem Endgerät ausführbar sein und ohne externe Dienste zusammenwirken. Gleichzeitig erfordert der Umgang mit potenziell sensiblen Sprachdaten eine klare Begrenzung der Datenweitergabe zwischen den Komponenten. Aus diesem Grund wurde eine modulare Architektur mit zustandsbasierter Ablaufsteuerung gewählt. Die Modularisierung ermöglicht die getrennte Betrachtung und den Austausch einzelner Verarbeitungskomponenten, während eine State"=Machine den Ablauf der Sprachinteraktion in klar definierte Phasen unterteilt. Dadurch lassen sich Datenschutz, Offlinefähigkeit, Wartbarkeit und praktische Evaluierbarkeit innerhalb einer einheitlichen Architektur berücksichtigen.
+
+Folgend wird die Architektur des Prototyps näher beschrieben und erläutert, wie das System grundsätzlich aufgebaut ist, wie die Verarbeitung einer Nutzereingabe gesteuert wird und wie die Daten innerhalb des Systems weitergegeben werden.
+
+
+\subsection{Modularer Aufbau}
+Um die Austauschbarkeit und damit auch die Testbarkeit einzelner Komponenten zu gewährleisten, muss das System modular aufgebaut sein. Alle einzelnen Verarbeitungsschritte sind dabei klar voneinander getrennt und haben feste Inputs und Outputs. Dadurch entsteht eine Architektur, in der jede Komponente eine eindeutig abgegrenzte Aufgabe übernimmt und nur über definierte Schnittstellen mit den nachfolgenden Verarbeitungsschritten verbunden ist. Der Prototyp besteht dabei aus sechs für Sprachassistentensysteme typischen Modulen: Audioeingabe (\texttt{audio\_input.py}), Wake"=Word"=Erkennung (\texttt{wakeword\_detector.py}), Speech"=To"=Text (\texttt{stt.py}), \gls{llm}"=Inferenz (\texttt{llm.py}), Text"=To"=Speech (\texttt{tts.py}) und der zentralen Ablaufsteuerung (\texttt{runner.py}).
+
+Ein wesentlicher Vorteil dieser Modularisierung besteht darin, dass einzelne Komponenten unabhängig voneinander verändert oder ersetzt werden können. Beispielsweise kann ein anderes \gls{stt}"=Modell eingesetzt werden, solange dieses weiterhin eine textuelle Transkription als Ausgabe liefert. Ebenso kann die Sprachsynthese durch ein anderes \gls{tts}"=System ersetzt werden, ohne dass die vorherigen Schritte der Verarbeitung angepasst werden müssen. Diese Eigenschaft ist besonders für die spätere Auswahl der konkreten Softwarekomponenten relevant, da dann unterschiedliche Modelle, Konfigurationen und Hardwareplattformen miteinander verglichen werden können.
+
+Neben der Austauschbarkeit unterstützt der modulare Aufbau auch die Nachvollziehbarkeit und Wartbarkeit des Systems. Da jeder Verarbeitungsschritt eine klar abgegrenzte Funktion besitzt, lassen sich Fehler leichter einer bestimmten Komponente zuordnen. Tritt beispielsweise eine fehlerhafte Antwort des Sprachassistenten auf, kann getrennt betrachtet werden, ob die Ursache bereits in der Audioaufnahme, in der Transkription, in der Antwortgenerierung oder erst in der Sprachausgabe liegt. Die Architektur erleichtert damit nicht nur die technische Umsetzung, sondern auch die spätere Evaluation des Prototyps.
+
+Für einen Sprachassistenten ist diese Trennung zudem relevant, da sich für jede Komponente einzeln nachvollziehen lässt, welche Daten verarbeitet werden. Gleichzeitig bleibt der Prototyp erweiterbar, da zusätzliche Funktionen oder alternative Implementierungen leicht in die bestehende Struktur integriert werden können, solange die Schnittstellen eingehalten werden.
+
+
+\subsection{Zustandsbasierte Steuerung}
+\label{sec:Zustandsbasierte_Steuerung}
+Die Verarbeitung einer Sprachinteraktion erfolgt nicht als einzelner linearer Programmablauf, sondern wird über eine zustandsbasierte Steuerung (State"=Machine) organisiert. Dabei befindet sich der Sprachassistent zu jedem Zeitpunkt in genau einem definierten Zustand. Jeder Zustand beschreibt, welche Aufgabe das System aktuell ausführt und welche Ereignisse einen Wechsel in den nächsten Zustand auslösen. Diese Struktur macht den Ablauf der Interaktion nachvollziehbar und verhindert, dass Verarbeitungsschritte unkontrolliert oder in falscher Reihenfolge ausgeführt werden.
+
+Das Zustandsdiagramm in \autoref{fig:zustandsdiagramm} zeigt den grundsätzlichen Ablauf einer vollständigen Interaktion. Nach dem Start befindet sich das System zunächst im Zustand \texttt{LISTENING}. In diesem Zustand wird kontinuierlich lokal auf das definierte Wake"=Word gewartet. Erst wenn dieses erkannt wurde, wechselt das System in den Zustand \texttt{RECORDING}. Dadurch wird sichergestellt, dass die eigentliche Sprachaufnahme nicht dauerhaft aktiv ist, sondern erst nach einer bewussten Aktivierung beginnt.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{Zustandsdiagramm.pdf}
+  \caption{Zustandsdiagramm der Sprachinteraktion}
+  \label{fig:zustandsdiagramm}
+\end{figure}
+
+Im Zustand \texttt{RECORDING} wird die Spracheingabe des Nutzers aufgezeichnet. Sobald das Ende der Eingabe erkannt wurde, wird die Aufnahme beendet und an den nächsten Verarbeitungsschritt übergeben. Anschließend folgt der Zustand \texttt{TRANSCRIBING}, in dem die aufgenommene Audiodatei in eine textuelle Repräsentation umgewandelt wird. Das erzeugte Transkript bildet die Grundlage für die weitere Verarbeitung durch das Sprachmodell.
+
+Nach erfolgreicher Transkription wechselt das System in den Zustand \texttt{GENERATING}. In diesem Zustand wird die Nutzereingabe an das lokal ausgeführte \gls{llm} übergeben, welches eine passende Antwort generiert. Sobald die Antwort vorliegt, kann in den Zustand \texttt{SPEAKING} gewechselt werden. Dort wird die generierte Textantwort mithilfe der lokalen Sprachsynthese in gesprochene Sprache umgewandelt und ausgegeben. Die Zustandsfolge bildet damit die zentrale Verarbeitungskette des Sprachassistenten ab: Aktivierung, Aufnahme, Transkription, Antwortgenerierung und Sprachausgabe.
+
+Durch diese sequentielle Zustandsfolge verarbeitet der Prototyp zu einem Zeitpunkt jeweils nur einen zentralen Interaktionsschritt. Während sich das System im Zustand \texttt{SPEAKING} befindet, wird daher keine neue Nutzereingabe aufgenommen oder ausgewertet. Eine Unterbrechung der laufenden Sprachausgabe durch eine neue Frage ist mit einer zustandsbasierten Architektur nur schwer umzusetzen. Diese Einschränkung reduziert die Komplexität der Ablaufsteuerung und verhindert konkurrierende Zugriffe auf Audioeingabe und Audioausgabe, begrenzt jedoch die Natürlichkeit der Interaktion bei längeren Antworten.
+
+Nach Abschluss der Sprachausgabe entscheidet das System, ob ein weiterer Gesprächsbeitrag erwartet wird und ein fortlaufendes Gespräch gewünscht ist. Wird innerhalb einer festgelegten Zeitspanne keine weitere Spracheingabe erkannt, kehrt der Sprachassistent in den Zustand \texttt{LISTENING} zurück und wartet erneut auf das Wake"=Word. Wird dagegen eine Folgeeingabe erkannt, wechselt das System in den Zustand \texttt{FOLLOWUP}. Dieser Zustand ermöglicht die zusammenhängende Interaktion, ohne dass das Wake"=Word für jede einzelne Nachfrage erneut ausgesprochen werden muss. Sobald in diesem Zustand Sprache erkannt wird, beginnt erneut die Aufnahme und die Verarbeitungskette wird von \texttt{RECORDING} aus fortgesetzt.
+
+Für die Robustheit des Systems ist außerdem relevant, dass Fehler in den einzelnen Verarbeitungsschritten nicht gleich zum Abbruch des gesamten Programms führen. Tritt während der Aufnahme, Transkription, Antwortgenerierung oder Sprachausgabe ein Fehler auf, wird der aktuelle Verarbeitungsvorgang beendet und das System in einen stabilen Ausgangszustand zurückgeführt. Dadurch bleibt der Sprachassistent weiterhin nutzbar, auch wenn einzelne Komponenten temporär fehlschlagen oder keine verwertbaren Ergebnisse liefern.
+
+Die zustandsbasierte Steuerung unterstützt damit mehrere zentrale Anforderungen des Prototyps. Sie verbessert die Nachvollziehbarkeit des Interaktionsablaufs, begrenzt die aktive Verarbeitung auf klar definierte Phasen und erleichtert die Erweiterung des Systems um zusätzliche Zustände oder alternative Verarbeitungswege. Gleichzeitig trägt sie zur datenschutzfreundlichen Gestaltung bei, da klar bestimmt ist, wann Audiodaten erfasst, verarbeitet und wieder verworfen werden. Die State"=Machine bildet eine logische Ablaufstruktur, auf der die einzelnen Module des Sprachassistenten koordiniert werden können. Die damit verbundene sequentielle Verarbeitung stellt jedoch auch eine bewusste Vereinfachung dar, die insbesondere bei parallelen Interaktionsformen, wie dem Unterbrechen einer laufenden Sprachausgabe, an Grenzen stößt.
+
+
+\subsection{Datenfluss innerhalb des Systems}
+Neben dem modularen Aufbau und der zustandsbasierten Steuerung ist der Datenfluss innerhalb des Systems für die Architektur des Prototyps auch von besonderer Relevanz. Er beschreibt, welche Daten während einer Sprachinteraktion entstehen, zwischen welchen Komponenten sie weitergegeben werden und an welchen Stellen eine Speicherung erfolgt. Gerade bei einem datenschutzfreundlichen Sprachassistenten ist diese Betrachtung zentral, da Sprachdaten, Transkriptionen und generierte Antworten potenziell sensible Informationen enthalten können. \autoref{fig:datenflussdiagramm} stellt diesen Datenfluss innerhalb des lokalen Sprachassistenzsystems dar.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{Datenflussdiagramm.pdf}
+  \caption{Datenfluss innerhalb des lokalen Sprachassistenzsystems}
+  \label{fig:datenflussdiagramm}
+\end{figure}
+
+Die kontinuierliche Aufnahme des Mikrofons gelangt zunächst in einen Ring"=Buffer. Dieser speichert immer nur eine kleine, festgelegte Anzahl eingehender sogenannter Audiochunks. Der Ring"=Buffer dient damit nicht der dauerhaften Speicherung von Sprachdaten, sondern ermöglicht lediglich die kontinuierliche Analyse des Audiosignals für die \todo{indem wahrschinlichkeit jedes chunks?}
+Wake"=Word"=Erkennung. Bei jedem neuen Durchlauf werden ältere Audiodaten überschrieben, sodass keine fortlaufende Audiodatei entsteht.
+
+Solange kein Wake"=Word erkannt wird, verbleibt die Verarbeitung in dieser ersten Phase. Das eingehende Audiosignal wird lokal durch die Wake"=Word"=Detection analysiert und nicht an weitere Verarbeitungskomponenten übergeben. Erst wenn das Wake"=Word erkannt wurde, wird die nachfolgende Verarbeitungskette aktiviert und die Aufnahme der Spracheingabe gestartet. Dadurch wird vermieden, dass jede akustische Umgebungssituation vollständig transkribiert oder weiterverarbeitet wird.
+
+Nach der Aktivierung wird die Aufgenommene Spracheingabe, sowie die verbliebenen Audiochunks des Ring"=Buffers an die Speech"=To"=Text"=Komponente übergeben. Diese verarbeitet den aufgenommenen Audiostream und erzeugt daraus ein textuelles Transkript. Damit verändert sich die Datenform von einer Audiodatei zu einer schriftlichen Version der Nutzeranfrage. Das Transkript bildet anschließend die Grundlage für die Antwortgenerierung durch das lokale \gls{llm}.
+
+Für die Antwortgenerierung wird neben der aktuellen Nutzeranfrage auch ein begrenzter Gesprächskontext berücksichtigt. Dieser Kontext enthält ausschließlich Informationen aus der laufenden Interaktion und dient dazu, zusammenhängende Folgefragen innerhalb derselben Konversation beantworten zu können. Der Kontext wird dabei nicht dauerhaft gespeichert, sondern vor jeder neuen Anfrage beziehungsweise nach Abschluss des Gesprächs gelöscht. Dadurch kann der Sprachassistent kurzfristig auf den Verlauf einer aktuellen Unterhaltung Bezug nehmen, ohne eine langfristige Gesprächshistorie aufzubauen.
+
+Das lokale \gls{llm} verarbeitet das Transkript gemeinsam mit dem aktuellen Gesprächskontext und erzeugt daraus einen Antworttext. Dieser Antworttext wird anschließend an die Text"=To"=Speech"=Komponente weitergegeben. Die Sprachsynthese wandelt den Text in eine synthetisierte Sprachausgabe um, die schließlich an den Nutzer zurückgegeben wird.
+
+Neben den unmittelbar während der Interaktion entstehenden Daten werden in \autoref{fig:datenflussdiagramm} auch statische und optionale Datenquellen dargestellt. Die Konfigurationsdatei stellt den Komponenten zentrale Parameter bereit, etwa Modellpfade, Geräteeinstellungen oder Schwellenwerte. Modelldateien werden lokal geladen und von den jeweiligen Komponenten verwendet. Diese Datenquellen sind für die Ausführung des Systems notwendig, enthalten jedoch keine während der Nutzung erzeugten Sprachinhalte.
+
+Optional können Debugdateien erzeugt werden. Diese werden nicht im normalen Betriebsmodus erzeugt, sondern können ausschließlich über einen gesonderten Debugmodus aktiviert werden. Das dient der späteren Entwicklung, Fehlersuche und Evaluation des Systems, etwa um einzelne Verarbeitungsschritte nachvollziehbar zu prüfen oder Messergebnisse zu dokumentieren. Da Debugdateien je nach Konfiguration auch Audiodaten, Transkriptionen oder Verarbeitungsergebnisse enthalten können, sind sie nicht für den dauerhaften Regelbetrieb vorgesehen.
+
+Die Darstellung verdeutlicht, dass die Verarbeitung innerhalb des lokalen Endgeräts stattfindet. Die einzelnen Komponenten erhalten jeweils nur die Daten, die für ihren Verarbeitungsschritt erforderlich sind. Audiodaten werden für die Aktivierung und Transkription genutzt, das \gls{llm} verarbeitet textuelle Eingaben und Kontextinformationen, während die Text"=To"=Speech"=Komponente ausschließlich den generierten Antworttext benötigt. Auch Konfigurations- und Modelldateien liegen lokal vor. Es werden keine Daten an Dienste außerhalb des Geräts übertragen, was die zentralen Anforderungen der lokalen Datenverarbeitung und Offlinefähigkeit unterstützt.
+
+
+\section{Auswahl der Softwarekomponenten}
+Für die Umsetzung des Offline"=Sprachassistenten wurden bestehende Open"=Source"=Komponenten eingesetzt, anstatt alle Teilfunktionen vollständig neu zu entwickeln. Diese Entscheidung ergibt sich aus dem prototypischen Charakter der Arbeit sowie aus der technischen Komplexität moderner Sprachverarbeitung. Komponenten wie Wake"=Word"=Erkennung, Speech"=To"=Text, \gls{llm}"=Inferenz und Text"=To"=Speech basieren jeweils auf spezialisierten Verfahren, deren vollständige Eigenentwicklung den Rahmen der Arbeit deutlich überschreiten würde.
+
+Der Einsatz etablierter Open"=Source"=Software ermöglicht es auch, den Schwerpunkt auf die Integration der Verarbeitungskette, die lokale Ausführung und die Bewertung der Architektur zu legen. Entscheidend ist dabei die Auswahl geeigneter Werkzeuge, die den Anforderungen an Datenschutz, Offlinefähigkeit, Ressourcenverbrauch und praktische Nutzbarkeit entsprechen. Die gewählten Komponenten müssen daher lokal ausführbar sein, klar in die modulare Systemarchitektur integrierbar sein und auf den vorgesehenen Hardwareplattformen grundsätzlich betrieben werden können.
+
+
+\subsection{Programmiersprache}
+Für die generelle Umsetzung wurde die Programmiersprache Python \autocite{Python314-Documentation} verwendet. Die Entscheidung für Python ergibt sich vor allem aus der guten Verfügbarkeit geeigneter Bibliotheken im Bereich der Audioverarbeitung, Sprachverarbeitung und lokalen Modellinferenz. Da der Prototyp mehrere spezialisierte Komponenten miteinander verbindet, ist eine Programmiersprache erforderlich, die eine einfache Integration unterschiedlicher Softwarebibliotheken ermöglicht und gleichzeitig eine schnelle prototypische Entwicklung unterstützt.
+
+Python eignet sich hierfür besonders, da viele Open"=Source"=Komponenten für Wake"=Word"=Erkennung, Speech"=To"=Text, \gls{llm}"=Inferenz und Text"=To"=Speech direkt über Python"=Schnittstellen nutzbar sind. Dadurch können die einzelnen Verarbeitungsschritte in einer einheitlichen Umgebung zusammengeführt werden, ohne dass für jede Komponente eigene Schnittstellen oder zusätzliche Hilfsprogramme entwickelt werden müssen. Dies unterstützt den modularen Aufbau des Systems, da die einzelnen Funktionen in getrennten Python"=Dateien umgesetzt und über klar definierte Eingaben und Ausgaben miteinander verbunden werden können.
+
+Ein weiterer Vorteil besteht in der plattformübergreifenden Nutzbarkeit. Python Code kann nach der Installation sowohl auf Desktop"=Systemen als auch auf Einplatinencomputern wie dem Raspberry Pi ausgeführt werden \autocite{Python314-Documentation}. Dies ist für die Evaluation des Prototyps relevant, da das System auf unterschiedlicher Hardware getestet wird. Gleichzeitig erlaubt Python eine gut nachvollziehbare Implementierung der zentralen Ablaufsteuerung, insbesondere der State"=Machine, ohne den Quellcode unnötig komplex zu machen.
+
+Für die vorliegende Arbeit steht nicht die maximale Laufzeiteffizienz der Programmiersprache selbst im Vordergrund, sondern die praktische Umsetzbarkeit eines lokal betriebenen Sprachassistenten. Rechenintensive Verarbeitungsschritte werden überwiegend von spezialisierten Bibliotheken oder externen Laufzeitkomponenten übernommen, während Python vor allem zur Orchestrierung der Module, zur Konfiguration und zur Steuerung des Interaktionsablaufs eingesetzt wird. Damit stellt Python einen geeigneten Kompromiss zwischen Entwicklungsaufwand, Verständlichkeit, Erweiterbarkeit und technischer Anschlussfähigkeit dar.
+
+
+\subsection{Audioverarbeitung}
+Die Audioverarbeitung ist Grundlage für die Erfassung gesprochener Nutzereingaben und die Wiedergabe generierter Sprachantworten. Für den Prototyp ist dabei entscheidend, dass Audiodaten kontinuierlich vom Mikrofon eingelesen, in geeigneten Blöcken verarbeitet und an die nachfolgenden Komponenten weitergegeben werden können. Da die Wake"=Word"=Erkennung dauerhaft auf eingehende Audiodaten angewiesen ist, muss die Audioeingabe als fortlaufender Datenstrom realisiert werden. Gleichzeitig muss die generierte Antwort des Systems über eine Audioausgabe wiedergegeben werden können. Die gewählte Lösung sollte daher sowohl die Eingabe als auch die Ausgabe von Audiodaten unterstützen, plattformübergreifend nutzbar sein und sich gut in die Python"=basierte Architektur integrieren lassen.
+
+Für die Audioverarbeitung in Python stehen verschiedene Möglichkeiten zur Verfügung. Eine verbreitete Bibliothek ist \texttt{PyAudio} \autocite{PyAudio-Documentation}, die wie \texttt{sounddevice} \autocite{Sounddevice-Documentation} auf PortAudio basiert und direkten Zugriff auf Audioein"= und Ausgabegeräte ermöglicht. Sie eignet sich grundsätzlich für Echtzeit"=Audioanwendungen, kann jedoch insbesondere bei der Installation auf unterschiedlichen Betriebssystemen zusätzlichen Aufwand verursachen. Die Bibliothek \texttt{speech\_recognition} \autocite{Speechrecognition-Documentation} bietet dagegen eine stärker abstrahierte Schnittstelle zur Aufnahme und Erkennung gesprochener Sprache. Für den vorliegenden Prototyp ist diese Abstraktion jedoch weniger geeignet, da nicht eine vollständig gekapselte Spracherkennung, sondern ein kontrollierter Zugriff auf den Audiostrom benötigt wird. Dieser Audiostrom muss sowohl für die kontinuierliche Wake"=Word"=Erkennung als auch für die anschließende Aufnahme der Nutzereingabe nutzbar sein. Bibliotheken wie \texttt{wave} \autocite{Python314-Documentation} oder \texttt{librosa} \autocite{Librosa-Documentation} sind wiederum vor allem für das Lesen, Schreiben oder Analysieren bereits vorhandener Audiodateien ausgelegt und daher für die kontinuierliche Verarbeitung eines Live"=Audiosignals nur eingeschränkt passend.
+
+Für den Prototyp wurde deshalb \texttt{sounddevice} eingesetzt. Die Bibliothek stellt eine Python"=Schnittstelle zu PortAudio bereit und ermöglicht den direkten Zugriff auf Mikrofone und Lautsprecher. Im entwickelten System wird sie sowohl für die blockweise Aufnahme eingehender Audiodaten als auch für die Ausgabe der durch die Text"=To"=Speech"=Komponente erzeugten Audiodaten verwendet. Eingehende Audiodaten können unmittelbar als numerische Datenstrukturen verarbeitet und an die Wake"=Word"=Erkennung übergeben oder temporär in einem Ring"=Buffer zwischengespeichert werden.
+
+Auch für die Sprachausgabe ist \texttt{sounddevice} sinnvoll, da die von der Text"=To"=Speech"=Komponente erzeugten Audiodaten direkt an ein Ausgabegerät weitergegeben werden können. Dies vereinfacht die Integration in die State"=Machine, da die Aufnahme und Wiedergabe kontrolliert innerhalb des Programmablaufs gestartet und beendet werden können.
+
+
+\subsection{Wake"=Word"=Erkennung}
+Die Wake"=Word"=Erkennung ist der erste richtige Verarbeitungsschritt der
+Sprachinteraktion und dient dazu, den Sprachassistenten gezielt zu aktivieren.
+
+Zur Umsetzung einer Wake"=Word"=Erkennung können dafür verschiedene Ansätze und Libraries in Betracht gezogen werden. Eine Möglichkeit besteht darin, allgemeine Speech"=To"=Text"=Systeme zur Erkennung eines Aktivierungswortes zu verwenden Dieser Ansatz ist jedoch für eine dauerhaft aktive Erkennung nur eingeschränkt geeignet, da vollständige Spracherkennung in der Regel mehr Rechenleistung benötigt als spezialisierte Keyword"=Spotting"=Verfahren. Zudem würde dabei kontinuierlich Sprache transkribiert, obwohl zunächst nur ein einzelnes Aktivierungswort erkannt werden muss. Für den Prototyp ist daher ein spezialisiertes Wake"=Word"=System besser geeignet.
+
+Eine verbreitete Lösung ist \texttt{Porcupine} \autocite{Porcupine-Documentation} von Picovoice. Die Software ist für ressourcenschonende On"=Device"=Wake"=Word"=Erkennung ausgelegt und unterstützt den Offline"=Betrieb. Für wissenschaftliche und prototypische Arbeiten ist jedoch zu berücksichtigen, dass \texttt{Porcupine} kein vollständig offenes Open"=Source"=Projekt im gleichen Sinne wie andere Komponenten der Arbeit ist und stärker an das Ökosystem des Anbieters gebunden ist. Eine weitere bekannte Lösung ist \texttt{Snowboy} \autocite{Snowboy-Documentation}. Diese wurde lange für Hotword"=Erkennung in lokalen Sprachassistenten verwendet, wird jedoch nicht mehr aktiv weiterentwickelt und ist deshalb für eine neue prototypische Umsetzung nur eingeschränkt geeignet. Wesentlich interessanter ist \texttt{Mycroft Precise} \autocite{Mycroftprecise-Documentation}, ein Open"=Source"=Ansatz, der ebenfalls auf die Erkennung eines Aktivierungswortes ausgerichtet ist und eigentlich alle Anforderungen des Prototyps erfüllt, jedoch eher auf die Nutzung eigener Wake"=Words ausgelegt ist. Ein individuelles Wakeword erfordert typischerweise großen Trainingsaufwand und eine geeignete Datengrundlage und würde damit den Rahmen der Arbeit sprengen.
+
+Letztendlich ist \texttt{openWakeWord} \autocite{OpenWakeWord-Documentation} als beste Lösung gewählt worden. Die Bibliothek ist als Open"=Source"=Produkt für Wake"=Word"=Erkennung konzipiert und stellt vortrainierte Modelle bereit, die lokal ausgeführt werden können. Gleichzeitig lässt sich \texttt{openWakeWord} direkt in eine Python"=basierte Verarbeitungskette integrieren und punktet nicht zuletzt mit einer einfachen Handhabung.
+
+Ein weiterer Vorteil liegt in der guten Passung zur modularen Architektur des Prototyps. Die Wake"=Word"=Erkennung kann als eigenständige Komponente gekapselt werden, die Audiodaten entgegennimmt und bei Erkennung des Aktivierungswortes ein Ereignis an die zentrale Ablaufsteuerung zurückgibt. Dadurch bleibt die Komponente klar von der späteren Sprachaufnahme und Transkription getrennt.
+
+
+\subsection{Speech"=To"=Text}
+Die Speech"=To"=Text"=Komponente wandelt die nach der Wake"=Word"=Erkennung aufgezeichnete Spracheingabe in Text um. Hierfür muss die Komponente eine ausreichende Erkennungsqualität bei vertretbarer Latenz bieten, da lange Wartezeiten den natürlichen Ablauf einer Sprachinteraktion deutlich beeinträchtigen.
+
+Eine leichtgewichtige Lösung zur Spracherkennung ist \texttt{Vosk} \autocite{Vosk-Documentation}, das auf Kaldi basiert und gut auf ressourcenbeschränkter Hardware eingesetzt werden kann. Vosks Vorteil von \texttt{Vosk} liegt vor allem in der vergleichsweise geringen Systemlast bei Ausführung \autocite{Vosk-Documentation}. Dadurch eignet sich die Lösung grundsätzlich für lokale Anwendungen, bei denen niedriger Ressourcenverbrauch wichtiger ist als eine möglichst hohe Erkennungsqualität bei frei formulierten Eingaben.
+
+OpenAIs \texttt{Whisper} \autocite{Whisper-Documentation} stellt eine weitere Option dar. \texttt{Whisper} ist ein allgemeines Spracherkennungsmodell, das neben multilingualer Spracherkennung auch Sprachübersetzung und robuste Spracherkennung über verschiedene Audiobedingungen hinweg unterstützt \autocite{robustSpeechRecognition}. Die offizielle Implementierung ist dokumentiert und als Open"=Source"=Software verfügbar \autocite{Whisper-Documentation}. Für einen interaktiven Offline"=Sprachassistenten ist jedoch nicht nur die Erkennungsqualität relevant, sondern auch die Inferenzgeschwindigkeit. Die ursprüngliche Implementierung kann insbesondere auf leistungsschwächeren Geräten zu höheren Antwortzeiten führen, da sie im Vergleich zu optimierten Varianten mehr Rechenzeit und Speicher benötigt \autocite{FasterWhisper-Documentation}.
+
+Als dritte Variante wurde \texttt{faster"=Whisper} \autocite{FasterWhisper-Documentation} betrachtet. Dabei handelt es sich um eine Reimplementierung von \texttt{Whisper} auf Basis von \texttt{CTranslate2}, einer auf effiziente Transformer"=Inferenz ausgelegten Laufzeitumgebung. Nach Angaben des Projekts kann \texttt{faster"=Whisper} bei gleicher Erkennungsqualität deutlich schneller als OpenAIs \texttt{Whisper} arbeiten und benötigt dabei weniger Speicher. Zusätzlich unterstützt die Implementierung 8"=Bit"=Quantisierung (siehe\autoref{sec:Large Language Models}) auf CPU und GPU, wodurch sich der Ressourcenbedarf weiter reduzieren lässt \autocite{FasterWhisper-Documentation}. Damit stellt \texttt{faster"=Whisper} eine für lokale Sprachassistenzsysteme besonders relevante Variante dar, da sie die Erkennungsqualität von \texttt{Whisper} mit einer effizienteren Ausführung verbindet.
+
+\todo{faster whisper modell --> tiny/small/medium}
+Zur Bewertung der Erkennungsqualität wurden zusätzlich eigene Tests mit \texttt{Vosk}, \texttt{Whisper} und \texttt{faster"=Whisper} durchgeführt. Hierfür wurden drei identische Spracheingaben verwendet, die typische Interaktionen mit dem Prototyp abbilden:
+
+\begin{itemize}
+  \item \textit{„Wie wird das Wetter heute?“}
+  \item \textit{„Stelle einen Timer für 15 Minuten.“}
+  \item \textit{„Erzähle mir einen Witz.“}
+\end{itemize}
+
+Der Test diente nicht einer umfassenden Evaluation der allgemeinen Erkennungsqualität, sondern einer anwendungsbezogenen Einschätzung, ob die jeweilige Komponente typische Spracheingaben des Prototyps unter identischen Bedingungen zuverlässig transkribieren kann.
+
+Alle Tests wurden auf der Hardware eines Apple MacBook M4 Air durchgeführt. Für jede Komponente wurden dieselben drei Spracheingaben jeweils zehn Mal eingesprochen. Eine Transkription wurde als korrekt gewertet, wenn die für die Weiterverarbeitung relevante Bedeutung vollständig erhalten blieb. Kleinere Abweichungen in Zeichensetzung, Groß"= und Kleinschreibung oder nicht bedeutungsverändernde Formulierungen wurden daher nicht als Fehler gewertet. Abweichungen bei Zahlenwerten, Schlüsselwörtern oder der semantischen Aussage der Eingabe wurden dagegen als fehlerhafte Erkennung dokumentiert.
+
+\begin{table}[H]
+  \caption{Vergleich der getesteten Speech"=To"=Text"=Komponenten anhand eigener Testeingaben}
+  \label{tab:vergleich-stt-eigene-tests}
+  \centering
+  \setlength{\tabcolsep}{8pt}
+  \begin{tabularx}{\textwidth}{l c L}
+    \toprule
+    \textbf{Komponente}      & \textbf{Korrekt Erkannt} & \textbf{Auffälligkeiten}                                           \\
+    \midrule
+    \texttt{Vosk}            & 24 von 30                & Häufigere Abweichungen bei einzelnen Wörtern und Zahlenwerten      \\
+    \texttt{Whisper}         & 29 von 30                & Zuverlässigste Erkennung                                           \\
+    \texttt{faster"=Whisper} & 28 von 30                & Leichte Abweichung zu \texttt{Whisper} trotz ähnlicher Technologie \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Die Ergebnisse in \autoref{tab:vergleich-stt-eigene-tests} zeigen, dass alle drei Systeme die Eingaben grundsätzlich gut verarbeiten konnten. \texttt{Vosk} erbrachte in diesem Test jedoch häufiger Erkennungsfehler, vor allem bei Zahlenwörtern. Im Allgemeinen war die Erkennungsleistung ausreichend, bei variableren Nutzereingaben kann die geringere Genauigkeit allerdings dazu führen, dass das \gls{llm} eine inhaltlich verfälschte Eingabe erhält. Da der Prototyp hauptsächlich frei formulierte Anfragen verarbeiten soll, wurde \texttt{Vosk} trotz der geringen Systemanforderungen nicht ausgewählt.
+
+Zwischen \texttt{Whisper} und \texttt{faster"=Whisper} ergaben sich in den eigenen Tests keine relevanten Unterschiede hinsichtlich der Erkennungsqualität. Beide Systeme konnten die Testfragen zuverlässig transkribieren. Für die Auswahl zwischen diesen beiden Varianten ist daher vor allem die Effizienz der Ausführung relevant. Hierfür wurden die in \autoref{tab:vergleich-whisper-faster-whisper-large-v2} und \autoref{tab:vergleich-whisper-faster-whisper-small} dargestellten Benchmark"=Ergebnisse aus der Dokumentation von \texttt{faster"=Whisper} herangezogen. Die Werte beziehen sich auf die Transkription einer 13"=minütigen Audiodatei. Der GPU"=Benchmark wurde mit einer NVIDIA RTX 3070 Ti mit 8\,GB VRAM durchgeführt, der CPU"=Benchmark mit acht Threads auf einem Intel Core i7"=12700K \autocite{FasterWhisper-Documentation}.
+
+\begin{table}[H]
+  \centering
+  \caption{Vergleich von \texttt{Whisper} und \texttt{faster"=Whisper} mit dem Large"=v2"=Modell auf GPU \autocite{FasterWhisper-Documentation}}
+  \label{tab:vergleich-whisper-faster-whisper-large-v2}
+  \begin{tabular}{l l l l}
+    \toprule
+    \textbf{Implementierung} & \textbf{Präzision} & \textbf{Zeit} & \textbf{Speicherbedarf} \\
+    \midrule
+    \texttt{Whisper}         & fp16               & 2\,min\,23\,s & 4708\,MB VRAM           \\
+    \texttt{faster"=Whisper} & fp16               & 1\,min\,03\,s & 4525\,MB VRAM           \\
+    \texttt{faster"=Whisper} & int8               & 59\,s         & 2926\,MB VRAM           \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Vergleich von \texttt{Whisper} und \texttt{faster"=Whisper} mit dem Small"=Modell auf CPU \autocite{FasterWhisper-Documentation}}
+  \label{tab:vergleich-whisper-faster-whisper-small}
+  \begin{tabular}{l l l l}
+    \toprule
+    \textbf{Implementierung} & \textbf{Präzision} & \textbf{Zeit} & \textbf{Speicherbedarf} \\
+    \midrule
+    \texttt{Whisper}         & fp32               & 6\,min\,58\,s & 2335\,MB RAM            \\
+    \texttt{faster"=Whisper} & fp32               & 2\,min\,37\,s & 2257\,MB RAM            \\
+    \texttt{faster"=Whisper} & int8               & 1\,min\,42\,s & 1477\,MB RAM            \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Die Benchmark"=Ergebnisse zeigen, dass \texttt{faster"=Whisper} sowohl auf GPU als auch auf CPU kürzere Transkriptionszeiten erreicht als die ursprüngliche \texttt{Whisper}"=Implementierung. Besonders relevant ist zudem die Möglichkeit der int8"=Ausführung, wodurch später der Speicherbedarf und damit die Systemanforderungen deutlich reduziert werden könnten.
+
+Die Auswahl von \texttt{faster"=Whisper} ergibt sich damit aus zwei Bewertungsschritten. Die eigenen Tests zur Erkennungsqualität sprechen gegen \texttt{Vosk}, da die geringere Genauigkeit bei frei formulierten Eingaben für den vorgesehenen Einsatzzweck problematisch ist. Zwischen \texttt{Whisper} und \texttt{faster"=Whisper} zeigte sich dagegen eine vergleichbare Transkriptionsqualität, sodass die effizientere Ausführung ausschlaggebend wurde. \texttt{faster"=Whisper} stellt für den Offline"=Sprachassistenten somit den geeignetsten Kompromiss aus lokaler Ausführbarkeit, Erkennungsqualität, Latenz und Ressourcenbedarf dar.
+
+
+\subsection{Large Language Model}
+Für die Generierung natürlicher Antworten wird im Prototyp ein \gls{llm} eingesetzt. Diese Komponente übernimmt innerhalb der Verarbeitungskette die Aufgabe, aus der transkribierten Nutzereingabe eine passende textuelle Antwort zu erzeugen. Diese Komponente ist für den Prototypen besonders ressourcenrelevant, da Sprachmodelle im Vergleich zu den übrigen Verarbeitungsschritten einen hohen Speicherbedarf und eine hohe Rechenlast verursachen können.
+
+Um die Architektur der Large Language"=komponente zu beschreiben, müssen jedoch zwei Aspekte betrachtet werden: Plattform und Modellauswahl. Die Plattform betrifft die technische Umgebung, in der die Inferenz des \gls{llm} stattfindet, also die Laufzeitumgebung. Die Modellauswahl betrifft die konkrete Wahl eines Sprachmodells, das für die Antwortgenerierung eingesetzt wird.
+
+
+\subsubsection{Lokale Inferenz}
+Für die lokale Ausführung von Sprachmodellen kommen unterschiedliche technische Ansätze infrage. Modelle können beispielsweise direkt über Frameworks wie \texttt{PyTorch} \autocite{PyTorch-Documentation} oder \texttt{Transformers} \autocite{Transformers-Documentation} ausgeführt werden. Dieser Ansatz bietet eine hohe Flexibilität, da viele aktuelle Modelle direkt über bestehende Modellbibliotheken eingebunden werden können. Für Software, die auf unterschiedlichen Hardwareplattformen laufen soll, ist dieser Weg jedoch nur eingeschränkt geeignet. Die Ausführung ist vergleichsweise ressourcenintensiv und setzt je nach Modell eine leistungsfähige GPU oder umfangreiche Optimierungen voraus. Gerade auf leistungsschwächeren Zielsystemen wie einem Raspberry Pi steht dieser Ansatz damit im Konflikt zu den Anforderungen an geringen Ressourcenverbrauch, einfache Bereitstellung und kurze Antwortzeiten.
+
+Eine weitere Möglichkeit stellen lokale Laufzeitumgebungen wie \texttt{GPT4All} \autocite{GPT4All-Documentation} oder \texttt{Ollama} \autocite{Ollama-Documentation} dar. Beide sind darauf ausgelegt, Sprachmodelle lokal auf Alltagsgeräten auszuführen und stellen dafür neben einer Anwendung auch eine Python"=Schnittstelle bereit. Die Lösung eignet sich damit grundsätzlich für Szenarien, in denen keine Cloud"=API genutzt werden soll. Für das Projekt ist jedoch nachteilig, dass \texttt{GPT4All}  und \texttt{Ollama} stärker als eigenständige Laufzeitumgebung mit eigener Modellverwaltung konzipiert sind und sich damit schwierig in ein einzelnes Python"=Package integrieren lassen. Beide Lösungen setzen auf \texttt{llama.cpp} als Inferenzbibliothek, bieten jedoch zusätzlich eine eigene Serverkomponente, die die Modellverwaltung und die Anbindung an die Anwendung übernimmt. Für den Prototyp ist diese zusätzliche Schicht aber nicht zwingend erforderlich. Da der Prototyp eine eigene Verarbeitungskette besitzt und die \gls{llm}"=Komponente direkt in diese eingebunden werden kann, ist ein zusätzlicher lokaler Dienst mit eigener Modellverwaltung unnötig.
+
+Aus diesen Gründen wurde die auch von Lösungen wie \texttt{Ollama} und \texttt{GPT4All} genutzte Inferenztechnologie \texttt{llama.cpp} \autocite{LlamaCpp-Documentation} gewählt. \texttt{llama.cpp} ist eine leichtgewichtige Inferenzbibliothek in C/C++, die auf die lokale Ausführung großer Sprachmodelle mit geringem Einrichtungsaufwand und hoher Leistung ausgelegt ist. Die Bibliothek unterstützt quantisierte Modelle und kann dadurch den Speicherbedarf sowie den Rechenaufwand gegenüber unquantisierten Modellvarianten deutlich reduzieren. Es ist damit leistungstechnisch eher möglich Modelle lediglich auf der CPU auszuführen. Gleichzeitig unterstützt \texttt{llama.cpp} neben reiner CPU"=Inferenz auch verschiedene Beschleunigungs"=Backends, darunter Metal für Apple"=Systeme, CUDA für NVIDIA"=Grafikkarten und weitere Schnittstellen wie Vulkan oder OpenCL, womit auch größere Modelle effizient betrieben werden können.
+
+Für die Integration in den Python"=basierten Prototyp kann \texttt{llama.cpp} über \texttt{llama"=cpp"=python} \autocite{Llamacpppython-Documentation} angebunden werden. Diese Bibliothek stellt Python"=Bindings für \texttt{llama.cpp} bereit und bietet sowohl eine direkte Programmierschnittstelle für Textgenerierung als auch weitere Integrationsmöglichkeiten.Das \gls{llm} kann so in die bestehende modulare Architektur eingebettet werden, ohne dass ein separater Serverprozess oder eine externe Schnittstelle erforderlich ist.
+
+%TODO: komplett noch machen (eigener Test maybe? Instruction modelle erklären / Graph bauen?)
+\subsubsection{Modellauswahl}
+Zur Auwahl eines geeigneten Sprachmodells werden vier, zum Zeitpunkt der Entwicklung relevante, Modelle verglichen.
+
+kommen vor allem kleinere, instruction"=getunte Modelle (siehe \autoref{sec:Large Language Models}) infrage, die für dialogartige Eingaben optimiert sind und lokal mit \texttt{llama.cpp} ausgeführt werden können.
+
+Grundsätzlich bestehen für die Antwortgenerierung mehrere Möglichkeiten. Cloud"=basierte Modelle wie ChatGPT, Gemini oder Claude bieten zwar eine hohe Antwortqualität, widersprechen jedoch dem datenschutzorientierten Ansatz des Prototyps, da Nutzereingaben an externe Server übertragen werden müssten. Für den entwickelten Sprachassistenten wurden daher ausschließlich lokal ausführbare Open"=Weight"=Modelle betrachtet. In diesem Bereich kommen insbesondere kompakte Modelle mit ungefähr drei bis vier Milliarden Parametern infrage, da sie einen Kompromiss zwischen Antwortqualität und Ressourcenbedarf bieten.
+
+Eine mögliche Option ist \texttt{Llama"=3.2"=3B"=Instruct}. Das Modell ist für mehrsprachige Dialoganwendungen vorgesehen und unterstützt laut Model Card unter anderem Deutsch als offiziell unterstützte Sprache. Zudem besitzt es eine Kontextlänge von 128\,000 Tokens und ist mit 3{,}21 Milliarden Parametern noch in einer Größenordnung, die für lokale Tests grundsätzlich geeignet ist \autocite{Llama32-ModelCard}. Für den Prototyp ist jedoch zu berücksichtigen, dass die Nutzung an die Llama"=3.2"=Community"=License gebunden ist, während andere Modelle unter permissiveren Lizenzen bereitgestellt werden.
+
+Eine weitere betrachtete Alternative ist \texttt{Phi"=3.5"=mini"=instruct}. Das Modell besitzt 3{,}8 Milliarden Parameter, unterstützt ebenfalls eine Kontextlänge von 128\,000 Tokens und ist unter der MIT"=Lizenz veröffentlicht \autocite{Phi35Mini-ModelCard}. Es ist auf textbasierte Chat"=Prompts ausgelegt und erreicht in multilingualen Benchmarks gute Ergebnisse. Durch die etwas höhere Parameteranzahl ist jedoch auch ein höherer Ressourcenbedarf zu erwarten. Für einen möglichst breit auf verschiedenen Geräten lauffähigen Prototyp ist deshalb ein kleineres Modell vorteilhaft, sofern die Antwortqualität für die vorgesehenen Anwendungsfälle ausreicht.
+
+Als dritte Option wurde \texttt{Qwen2.5"=3B"=Instruct} betrachtet. Das Modell umfasst 3{,}09 Milliarden Parameter, davon 2{,}77 Milliarden Nicht"=Embedding"=Parameter, und unterstützt eine Kontextlänge von 32\,768 Tokens sowie eine maximale Generierungslänge von 8192 Tokens \autocite{Qwen25-ModelCard}. Qwen beschreibt die Modellreihe als verbessert hinsichtlich Instruktionsbefolgung, strukturierter Ausgaben sowie mathematischer und programmierbezogener Fähigkeiten. Für den Prototyp ist insbesondere relevant, dass \texttt{Qwen2.5"=3B"=Instruct} in quantisierten GGUF"=Varianten verfügbar ist und damit direkt mit \texttt{llama.cpp} beziehungsweise \texttt{llama"=cpp"=python} genutzt werden kann \autocite{Qwen25GGUF-ModelCard}.
+
+\begin{table}[H]
+  \caption{Vergleich betrachteter lokaler Large"=Language"=Models}
+  \label{tab:vergleich-llm-optionen}
+  \centering
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\textwidth}{L c c C L}
+    \toprule
+    \textbf{Modell}                   & \textbf{Parameter} & \textbf{Kontextlänge} & \textbf{Lizenz}              & \textbf{Auffälligkeiten}                                                                             \\
+    \midrule
+    \texttt{Llama"=3.2"=3B"=Instruct} & 3{,}21B            & 128K                  & Llama"=3.2 Community License & Mehrsprachiges Dialogmodell, jedoch mit spezifischer Community"=Lizenz                               \\
+    \texttt{Phi"=3.5"=mini"=instruct} & 3{,}8B             & 128K                  & MIT                          & Gute mehrsprachige Fähigkeiten, jedoch größer als die übrigen betrachteten 3B"=Modelle               \\
+    \texttt{Qwen2.5"=3B"=Instruct}    & 3{,}09B            & 32K                   & Apache"=2.0                  & Kompaktes Instruct"=Modell mit guter GGUF"=Verfügbarkeit und direkter Eignung für \texttt{llama.cpp} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Der Vergleich in \autoref{tab:vergleich-llm-optionen} zeigt, dass alle drei Modelle grundsätzlich für eine lokale Antwortgenerierung geeignet sind. \texttt{Llama"=3.2"=3B"=Instruct} und \texttt{Phi"=3.5"=mini"=instruct} bieten sehr große Kontextfenster, was für lange Dokumente oder umfangreiche Dialogverläufe vorteilhaft sein kann. Für den entwickelten Sprachassistenten ist dieser Vorteil jedoch nur begrenzt relevant, da die Interaktionen aus kurzen Spracheingaben und kurzen Antwortsequenzen bestehen. Wichtiger sind eine möglichst geringe Modellgröße, eine einfache lokale Ausführung und eine gute Integration in die gewählte Inferenzumgebung.
+
+Für die finale Umsetzung wurde deshalb die quantisierte Variante \texttt{qwen2.5"=3b"=instruct"=q4\_k\_m} verwendet. Dabei handelt es sich um eine GGUF"=Quantisierung des Modells \texttt{Qwen2.5"=3B"=Instruct}. Die Quantisierungsvariante \texttt{Q4\_K\_M} besitzt eine Dateigröße von 1{,}93\,GB und wird in der Modellübersicht als empfohlene Standardgröße mit guter Qualität beschrieben \autocite{Qwen25GGUF-ModelCard}. Im Vergleich zur unquantisierten beziehungsweise weniger stark quantisierten Ausführung reduziert diese Variante den Speicherbedarf deutlich, ohne für die im Prototyp vorgesehenen kurzen Dialoginteraktionen eine unverhältnismäßig starke Qualitätsreduktion erwarten zu lassen.
+
+\begin{table}[H]
+  \caption{Vergleich ausgewählter GGUF"=Quantisierungen von \texttt{Qwen2.5"=3B"=Instruct}}
+  \label{tab:vergleich-qwen-quantisierung}
+  \centering
+  \setlength{\tabcolsep}{8pt}
+  \begin{tabularx}{\textwidth}{l c L}
+    \toprule
+    \textbf{Quantisierung} & \textbf{Dateigröße} & \textbf{Einordnung}                                               \\
+    \midrule
+    \texttt{f16}           & 6{,}18\,GB          & Vollständige 16"=Bit"=Gewichte mit hohem Speicherbedarf           \\
+    \texttt{Q8\_0}         & 3{,}29\,GB          & Sehr hohe Qualität, für den Prototyp jedoch meist unnötig groß    \\
+    \texttt{Q5\_K\_M}      & 2{,}22\,GB          & Hohe Qualität bei reduziertem Speicherbedarf                      \\
+    \texttt{Q4\_K\_M}      & 1{,}93\,GB          & Gute Qualität, empfohlene Standardgröße und geeigneter Kompromiss \\
+    \texttt{Q4\_K\_S}      & 1{,}83\,GB          & Etwas kleinere Variante mit leicht reduzierter Qualität           \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Die in \autoref{tab:vergleich-qwen-quantisierung} dargestellten Werte verdeutlichen, warum für den Prototyp nicht die größte verfügbare Modellvariante verwendet wurde. Eine höhere Präzision kann zwar die Antwortqualität stabilisieren, erhöht jedoch gleichzeitig den Speicherbedarf und erschwert die Ausführung auf ressourcenbeschränkter Hardware. Die Variante \texttt{Q4\_K\_M} stellt für den Offline"=Sprachassistenten einen geeigneten Mittelweg dar, da sie deutlich kleiner als die \texttt{f16}"= und \texttt{Q8\_0}"=Varianten ist, aber gegenüber stärker reduzierten Quantisierungen eine bessere Qualitätsreserve bietet.
+
+Die Entscheidung für \texttt{qwen2.5"=3b"=instruct"=q4\_k\_m} ergibt sich damit aus der Kombination aus kompakter Modellgröße, instruction"=getunter Dialogfähigkeit, lokaler Ausführbarkeit mit \texttt{llama.cpp}, permissiver Lizenzierung und reduziertem Speicherbedarf durch Quantisierung. Für den entwickelten Offline"=Sprachassistenten ist diese Kombination besonders geeignet, da sie eine vollständig lokale Antwortgenerierung ermöglicht und zugleich die praktischen Hardwaregrenzen des Prototyps berücksichtigt.
+
+
+\subsection{Text"=To"=Speech}
+Zur Wahl der  Text"=To"=Speech"=Komponenten kommen verschiedene Möglichkeiten infrage. Eine besonders einfache und ressourcenschonende Option ist \texttt{eSpeak NG} \autocite{ESpeakNG-Documentation}. Dabei handelt es sich um einen kompakten Formantsynthesizer, bei dem Sprache künstlich durch ein Modell von Menschlichen Sprachorganen erzeugt wird. Ein großer Nachteil dieser Technik besteht darin, dass die erzeugte Sprache vergleichsweise synthetisch und künstlich klingt. Um eine möglichst natürliche Interaktion ermöglichen ist deshalb eine neuronale Text"=To"=Speech"=Lösung geeigneter.
+
+Eine weitere moderne Alternative ist \texttt{Kokoro} \autocite{Kokoro-Documentation}. Das Open"=Weight"=Text"=To"=Speech"=Modell umfasst 82 Millionen Parameter und soll trotz seiner kompakten Architektur eine hohe Synthesequalität bei effizienter Ausführung ermöglichen \autocite{Kokoro-Documentation}. Für den vorliegenden Prototyp ist \texttt{Kokoro} jedoch nur eingeschränkt geeignet, da zum Zeitpunkt der Komponentenauswahl keine stabil nutzbaren deutschen Stimmen im offiziellen Modellangebot bereitstehen. Auch wenn englische Modelle grundsätzlich kein Problem darstellen, kann die Nutzung englischer oder nur experimentell verfügbarer Stimmen die Vergleichbarkeit im späteren Evaluationsteil stark beeinflussen und macht \texttt{Kokoro} damit für die Umsetzung weniger passend.
+
+Mit \texttt{Coqui TTS} \autocite{CoquiTTS-Documentation} wird ein umfangreiches Toolkit für neuronale Sprachsynthese mit vortrainierten Modellen in vielen Sprachen sowie Funktionen zum Trainieren und Fine"=Tuning eigener Stimmen bereitgestellt. Dadurch bietet die Lösung viele Möglichkeiten für hochwertige und flexible Sprachsynthese. Für den Prototyp ist dieser Funktionsumfang wiederum nur begrenzt erforderlich. Die Arbeit konzentriert sich nicht auf das Training eigener Stimmen, sondern auf die Integration einer lokal ausführbaren und zuverlässig nutzbaren Sprachausgabe. Außerdem wird \texttt{Coqui TTS} zum heutigen Stand nicht mehr weiterentwickelt und bietet damit keine langfristige Perspektive für die Nutzung.
+
+Schlussendlich sollte auch \texttt{Piper} \autocite{Piper-Documentation} betrachtet werden. \texttt{Piper} ist ein lokales neuronales Text"=To"=Speech"=System, das auf eine schnelle Sprachsynthese ausgelegt ist und auch für den Einsatz auf leistungsschwächerer Hardware geeignet ist. Interessanterweise basiert \texttt{Piper} die Phonemisierung, also die Umwandlung von Graphemen in Phoneme (siehe \autoref{sec:Text-to-Speech}) auf der zuvor behandelten Technologie von \texttt{eSpeak NG} \autocite{Piper-Documentation}. Modelltechnisch existieren für \texttt{Piper} nicht nur englische Stimmen, sondern auch eine vergleichsweise gut nutzbare deutsche Stimme von Thorsten Müller aus dem ThorstenVoice-Projekt \autocite{ThorstenVoice-Documentation}. Diese wurde ursprünglich für \texttt{Coqui TTS} entwickelt, kann und darf aber auch gut mit \texttt{Piper} genutzt werden.
+
+Die zuvor beschriebenen Optionen unterscheiden sich vor allem hinsichtlich Natürlichkeit, Integrationsaufwand, Ressourcenbedarf und Verfügbarkeit geeigneter deutscher Stimmen. \autoref{tab:vergleich-tts-komponenten} fasst diese Kriterien verdichtet zusammen und ordnet die betrachteten Komponenten im Hinblick auf ihre Eignung für den entwickelten Offline"=Sprachassistenten ein.
+
+\begin{table}[H]
+  \caption{Vergleich betrachteter Text"=To"=Speech"=Komponenten}
+  \label{tab:vergleich-tts-komponenten}
+  \centering
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabularx}{\textwidth}{l L L c}
+    \toprule
+    \textbf{Komponente} & \textbf{Charakteristik}                                                             & \textbf{Zentrale Einschränkung} & \textbf{Eignung} \\
+    \midrule
+    \texttt{eSpeak NG}
+                        & Sehr ressourcenschonende Offline"=Sprachsynthese
+                        & Deutlich synthetische Sprachausgabe
+                        & mittel                                                                                                                                   \\
+    \texttt{Coqui TTS}
+                        & Umfangreiches Toolkit für neuronale Sprachsynthese und Modelltraining
+                        & Für den Prototyp vergleichsweise komplex und nicht mehr aktiv weiterentwickelt
+                        & mittel                                                                                                                                   \\
+    \texttt{Kokoro}
+                        & Kompaktes Open"=Weight"=TTS"=Modell mit effizienter Architektur
+                        & Keine stabil nutzbaren deutschen Stimmen im offiziellen Modellangebot
+                        & gering                                                                                                                                   \\
+    \texttt{Piper}
+                        & Lokale neuronale Sprachsynthese mit vortrainierten Stimmen und schlanker Einbindung
+                        & Weniger flexibel als umfangreiche Trainingsframeworks
+                        & hoch                                                                                                                                     \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\todo{noch ende machen}

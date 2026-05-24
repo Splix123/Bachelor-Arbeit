@@ -1,0 +1,40 @@
+\chapter{Prototypische Umsetzung}
+Im Rahmen dieser Arbeit wurde ein datenschutzfreundlicher Sprachassistent prototypisch entwickelt und umgesetzt. Der entwickelte Prototyp stellt zentrale Funktionen moderner Sprachassistenzsysteme möglichst lokal und ohne dauerhafte Abhängigkeit von Cloud-Diensten bereit.
+
+Die prototypische Implementierung orientiert sich an den zuvor erläuterten theoretischen Grundlagen und kombiniert verschiedene Komponenten der Sprachverarbeitung zu einem zusammenhängenden Gesamtsystem. Hierzu zählen Wake"=Word"=Erkennung, automatische Spracherkennung, Verarbeitung natürlicher Sprache durch ein lokales \gls{llm} sowie Sprachsynthese.
+
+
+\section{Projektstruktur}
+
+
+
+\section{Konfiguration}
+Die zentrale Konfiguration der Anwendung erfolgt über eine YAML"=Datei. Dort werden unter anderem Modellpfade, Schwellenwerte, Spracheinstellungen und Parameter der einzelnen Komponenten definiert.
+
+Durch die externe Konfiguration kann die Anwendung flexibel an unterschiedliche Hardwareumgebungen angepasst werden, ohne Änderungen am Quellcode vornehmen zu müssen. Dies erleichtert insbesondere die Evaluation verschiedener Modelle und Parameterkombinationen.
+
+Zusätzlich überprüft die Implementierung beim ersten Start automatisch, ob die benötigten Modellverzeichnisse vorhanden sind. Fehlende Ordner werden automatisch erstellt, wodurch die Einrichtung des Systems vereinfacht wird.
+
+
+\section{Interaktionsablauf}
+
+
+
+\section{Demonstration}
+Zur Demonstration des entwickelten Prototyps wurde der vollständige Ablauf einer typischen Sprachinteraktion praktisch getestet. Dabei sollte insbesondere überprüft werden, ob die einzelnen Komponenten der lokalen Verarbeitungskette zuverlässig zusammenarbeiten und eine natürliche Interaktion ohne cloudbasierte Dienste ermöglichen.
+
+Nach dem Start der Anwendung initialisiert der Sprachassistent zunächst alle benötigten Modelle und Komponenten. Anschließend wechselt das System in den Zustand \texttt{LISTENING} und überwacht kontinuierlich den Mikrofoneingang auf das definierte Wake"=Word. Während dieses Zustands erfolgt ausschließlich die lokale Verarbeitung der Audiodaten.
+
+Wird das Wake"=Word erkannt, startet automatisch die Aufnahme der Spracheingabe. Der Nutzer kann anschließend eine Anfrage formulieren, beispielsweise zur Informationsabfrage, zur Zusammenfassung eines Sachverhalts oder zur Durchführung einfacher dialogbasierter Interaktionen. Die Aufnahme endet automatisch, sobald über einen definierten Zeitraum keine Sprachaktivität mehr erkannt wird.
+
+Im nächsten Schritt wird die Spracheingabe mithilfe von \textit{faster"=whisper} lokal transkribiert. Der erzeugte Text wird anschließend an das lokal ausgeführte Sprachmodell weitergegeben. Dieses verarbeitet die Anfrage unter Berücksichtigung des bisherigen Gesprächskontexts und generiert eine passende Antwort. Die generierte Antwort wird danach durch \textit{Piper} in Sprache synthetisiert und direkt über das Ausgabegerät wiedergegeben.
+
+Die Demonstration zeigt, dass sämtliche Verarbeitungsschritte vollständig lokal ausgeführt werden können. Weder Sprachaufnahmen noch Transkriptionen oder Modellantworten werden an externe Server übertragen. Dadurch bleibt die Kontrolle über die verarbeiteten Daten vollständig beim Nutzer.
+
+Zusätzlich wurde überprüft, ob Folgeanfragen ohne erneute Aktivierung des Wake"=Words möglich sind. Hierzu wechselt das System nach der Sprachausgabe temporär in den Zustand \texttt{FOLLOWUP}. Innerhalb dieses Zeitfensters können weitere Anfragen gestellt werden, wodurch ein natürlicherer Gesprächsfluss entsteht. Erfolgt keine weitere Eingabe, kehrt der Sprachassistent automatisch in den ursprünglichen Wartemodus zurück.
+
+Im praktischen Einsatz zeigte sich, dass die modulare Architektur einen stabilen Ablauf der einzelnen Verarbeitungsschritte ermöglicht. Gleichzeitig wurde deutlich, dass die Reaktionsgeschwindigkeit und die Qualität der Antwortgenerierung stark von der verwendeten Hardware sowie von der Größe der eingesetzten Modelle abhängen. Besonders die Inferenz des lokalen Large Language Models stellt auf ressourcenbeschränkten Geräten den rechenintensivsten Teil der Verarbeitung dar.
+
+Die Demonstration bestätigt insgesamt die grundsätzliche praktische Umsetzbarkeit eines lokal betriebenen und datenschutzfreundlichen Sprachassistenzsystems. Trotz der im Vergleich zu cloudbasierten Lösungen teilweise begrenzten Rechenressourcen konnte eine vollständige Offline"=Verarbeitung mit natürlicher Sprachinteraktion realisiert werden. Die detaillierte Bewertung der Leistungsfähigkeit auf unterschiedlicher Hardware erfolgt im folgenden Evaluationskapitel.
+
+
