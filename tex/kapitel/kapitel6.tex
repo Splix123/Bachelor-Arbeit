@@ -1,16 +1,242 @@
 \chapter{Evaluation}
+Nachdem das Artefakt umgesetzt wurde, wird anschliessend untersucht, inwieweit es die zuvor formulierten Anforderungen erfüllt. Die Evaluation bildet damit den Übergang von der technischen Realisierung zur Bewertung des Systems und betrachtet den Prototyp nicht nur hinsichtlich seiner grundsätzlichen Funktionsfähigkeit, sondern auch im Hinblick auf die für diese Arbeit wichtigen Kriterien.
+
+Im Mittelpunkt steht dabei die Frage, ob ein lokal betriebener Sprachassistent eine realistische Alternative zu cloud"=basierten Systemen darstellen kann. Da der Prototyp bewusst als lauffähiges, aber begrenztes Artefakt entwickelt wurde, liegt der Fokus der Evaluation nicht auf einer vollständigen Produktbewertung, sondern auf einer nachvollziehbaren Einschätzung seiner Leistungsfähigkeit unter definierten Bedingungen.
+
+
 \section{Versuche auf verschiedener Hardware}
-\subsection{Raspberry Pi}
+Um die grundlegende Einsetzbarkeit des entwickelten Offline"=Sprachassistenten zu bewerten, wurde der Prototyp auf unterschiedlichen Hardwareplattformen ausgeführt. Dadurch lässt sich untersuchen, wie stark die Leistungsfähigkeit des Systems von den verfügbaren Rechenressourcen abhängt und in welchem Umfang ein lokaler Sprachassistent auch auf ressourcenbeschränkten Geräten realistisch betrieben werden kann.
+
+Für die einzelnen Versuche wurde nicht auf allen Geräten dieselbe Konfiguration verwendet. Stattdessen wurden die Einstellungen und benutzten Modelle an die jeweilige Hardware angepasst, um eine möglichst sinnvolle und stabile Ausführung des Systems zu ermöglichen. Dies betrifft insbesondere die Auswahl und Größe des verwendeten \gls{llm}"=Modells, da die lokale Inferenz im Vergleich zu Wake"=Word"=Erkennung, Speech"=To"=Text und Text"=To"=Speech den größten Einfluss auf Speicherbedarf, Rechenlast und Antwortzeit hat. Auf leistungsfähigeren Systemen konnte daher ein größeres Modell eingesetzt werden, während auf schwächerer Hardware eine kleinere Modellvariante beziehungsweise eine stärker ressourcenschonende Konfiguration erforderlich war.
+
+Die Versuche dienen damit nicht nur einem direkten Leistungsvergleich der Geräte, sondern auch der Bewertung, welche Kompromisse bei einem lokal betriebenen Sprachassistenten notwendig werden. Neben der reinen Funktionsfähigkeit sind insbesondere Antwortzeiten, Stabilität, Ressourcenverbrauch und Nutzbarkeit der Interaktion relevant. Auf dieser Grundlage kann eingeordnet werden, welche Hardwareklassen für den praktischen Betrieb eines datenschutzfreundlichen Offline"=Sprachassistenten geeignet sind und wo die Grenzen des gewählten Ansatzes liegen.
+
+
+\subsection{Testaufbau}
+Für die Evaluation der Hardwareversuche wurde ein einheitlicher Testaufbau definiert, um die Ergebnisse der einzelnen Systeme möglichst vergleichbar zu machen. Untersucht wurden dabei zwei Perspektiven. \todo{besser}
+Zum einen wurde der Ressourcenbedarf des Prototyps während der Ausführung betrachtet. Zum anderen wurde die Verarbeitung typischer Spracheingaben anhand eines wiederholbaren Benchmark"=Ablaufs gemessen. Dadurch kann nicht nur bewertet werden, ob der Sprachassistent auf der jeweiligen Hardware grundsätzlich lauffähig ist, sondern auch, wie effizient und nutzbar die Interaktion unter den jeweiligen Bedingungen ausfällt.
+
+Für die Messungen wurde das entwickelte Benchmark"=Modul aus \texttt{benchmark.py} verwendet. Dieses nutzt voraufgenommene Spracheingaben aus Audiodateien und und speißt sie in das Wake"=Word"=Modul, also der Einstiegsstelle des Sprachassistenten. Das ermöglicht eine einheitliche und wiederholbare Bewertung auf den verschiedenen Systemen und erleichtert ebenfalls den Testumfang.
+
+Als Testeingaben wurden fünf Sätze ausgewählt, die unterschiedliche Anforderungen an den Prototyp stellen. Die Sätze bilden sowohl sehr kurze Alltagseingaben als auch fachbezogene Fragen mit Bezug zum Thema der Arbeit ab. Dadurch kann untersucht werden, wie sich Eingabelänge und inhaltliche Komplexität auf die Verarbeitungsdauer auswirken.
+
+\begin{enumerate}
+  \item \textit{„Alexa, wie geht es dir?“}
+  \item \textit{„Alexa, erkläre mir kurz, was ein Sprachassistent ist.“}
+  \item \textit{„Alexa, was bedeutet Privacy by Design?“}
+  \item \textit{„Alexa, erkläre mir in einfachen Worten, warum lokale Sprachassistenten datenschutzfreundlicher sein können.“}
+  \item \textit{„Alexa, fasse kurz zusammen, warum Datenschutz bei Sprachassistenten eine Rolle spielt.“}
+\end{enumerate}
+
+Die erste Eingabe stellt einen sehr kurzen Fragesatz mit geringer Verarbeitungslast dar. Sie dient dazu, die minimale Reaktionsfähigkeit des Systems bei einer einfachen Interaktion zu erfassen. Die zweite Eingabe bildet eine einfache Wissensfrage mit kurzer erwarteter Antwort ab. Die dritte Eingabe bezieht sich mit Privacy by Design bereits auf ein fachliches Konzept, bleibt jedoch sprachlich vergleichsweise kompakt. Die vierte Eingabe ist länger und verlangt eine erklärende Antwort, wodurch insbesondere die \gls{llm}"=Inferenz stärker beansprucht wird. Die fünfte Eingabe fordert eine kurze Zusammenfassung und prüft damit ebenfalls eine inhaltlich anspruchsvollere Verarbeitung.
+
+Jede dieser fünf Eingaben wurde auf den einzelnen Hardwareplattformen jeweils zehnmal mit derselben Systemkonfiguration ausgeführt. Durch diese Wiederholung sollen zufällige Schwankungen einzelner Durchläufe reduziert werden, die beispielsweise durch kurzfristige Hintergrundprozesse, unterschiedliche Modellantworten oder variierende Systemlast entstehen können. \todo{als anhang?}
+Für die Auswertung werden daher nicht nur einzelne Messwerte betrachtet, sondern aggregierte Kennzahlen wie Durchschnitt, Minimum, Maximum und Streuung. Auf diese Weise lässt sich besser beurteilen, ob ein System dauerhaft stabile Antwortzeiten liefert oder ob einzelne Durchläufe deutlich von den übrigen Messungen abweichen.
+
+Die Bewertung der Ergebnisse erfolgt getrennt nach Ressourcenverbrauch und Nutzbarkeit. Der Ressourcenverbrauch zeigt, wie stark die jeweilige Hardware durch den lokalen Betrieb des Sprachassistenten belastet wird. Die Nutzbarkeit wird vor allem anhand der gemessenen Antwortzeiten und der Stabilität des Ablaufs eingeordnet. Ein System gilt dabei nicht allein deshalb als geeignet, weil der Prototyp technisch gestartet werden kann. Entscheidend ist vielmehr, ob die Interaktion ohne Abbrüche, mit vertretbarer Wartezeit und unter akzeptabler Ressourcennutzung durchgeführt werden kann.
+
+
+\subsection{Raspberry Pi 4 Model B}
+\todo{belegen}
+Der Raspberry Pi 4 Model B stellt innerhalb der Evaluation die leistungsschwächste, zugleich aber praxisnaheste Testplattform dar. Im Gegensatz zu einem Notebook oder Desktop"=System entspricht er eher der Geräteklasse, in der auch viele kommerzielle Sprachassistenzsysteme eingesetzt werden. Solche Systeme arbeiten typischerweise mit kompakter Hardware, geringem Energieverbrauch und begrenzten lokalen Rechenressourcen. Gerade deshalb ist der Raspberry Pi für die Fragestellung dieser Arbeit besonders relevant, da an ihm sichtbar wird, welche Einschränkungen ein vollständig lokal betriebener Sprachassistent unter realistischeren Hardwarebedingungen aufweist.
+
+Das verwendete Modell verfügt über einen Quad"=Core"=ARM"=Prozessor und 4\,GB Arbeitsspeicher. Damit bietet der Raspberry Pi 4 Model B grundsätzlich genügend Ressourcen, um einzelne Komponenten eines Sprachassistenzsystems lokal auszuführen. Für die vollständige Verarbeitungskette aus Wake"=Word"=Erkennung, \gls{stt}, \gls{llm}"=Inferenz und \gls{tts} ist die verfügbare Rechenleistung jedoch deutlich begrenzt.
+
+Die für den Raspberry Pi angepasste Konfiguration wurde gewählt, um die begrenzten Ressourcen optimal zu nutzen. Anstelle des auf leistungsfähigeren Systemen genutzten \texttt{faster"=Whisper"=Medium}"=Modells kam \texttt{faster"=Whisper"=tiny} zum Einsatz. Dadurch reduziert sich der Rechenaufwand der Spracherkennung deutlich, allerdings auf Kosten einer potenziell geringeren Erkennungsgenauigkeit. Auch das \gls{llm} wurde an die begrenzten Ressourcen angepasst. Statt der größeren Qwen"=Variante mit 3 Millarden Parametern wurde ein kleineres Qwen"=Modell mit 0,5 Milliarden Parametern verwendet. Zusätzlich wurden der Kontextumfang und die maximale Anzahl der zu generierenden Tokens reduziert. Diese Einstellungen begrenzen die Länge der Eingabe"= und Ausgabeverarbeitung und verringern damit Speicherbedarf sowie Antwortzeit. Gleichzeitig schränken sie jedoch die Fähigkeit des Systems ein, längere oder komplexere Anfragen ausführlich zu beantworten.
+
+Die Messergebnisse in \autoref{tab:evaluation-raspberry-pi} zeigen, dass der Prototyp auf dem Raspberry Pi grundsätzlich lauffähig ist, jedoch nur eingeschränkt als interaktives Sprachassistenzsystem genutzt werden kann.
+
+\begin{table}[H]
+  \centering
+  \caption{Durchschnittliche Evaluationswerte auf dem Raspberry Pi 4 Model B}
+  \label{tab:evaluation-raspberry-pi}
+  \small
+  \begin{tabular}{c c c c c c c l}
+    \toprule
+    \textbf{Satz}        &
+    \textbf{CPU}         &
+    \textbf{RAM}         &
+    \textbf{STT}         &
+    \textbf{\gls{llm}}   &
+    \textbf{TTS}         &
+    \textbf{Antwortzeit} &
+    \textbf{Antwortqualität}                                                                                     \\
+    \midrule
+    1                    & 82\,\% & 2{,}42\,GB & 1{,}84\,s & 7{,}96\,s  & 1{,}18\,s & 10{,}98\,s & gut           \\
+    2                    & 87\,\% & 2{,}51\,GB & 2{,}13\,s & 13{,}72\,s & 1{,}46\,s & 17{,}31\,s & gut           \\
+    3                    & 89\,\% & 2{,}56\,GB & 2{,}21\,s & 15{,}94\,s & 1{,}52\,s & 19{,}67\,s & eingeschränkt \\
+    4                    & 94\,\% & 2{,}68\,GB & 2{,}64\,s & 25{,}87\,s & 2{,}11\,s & 30{,}62\,s & eingeschränkt \\
+    5                    & 96\,\% & 2{,}74\,GB & 2{,}91\,s & 34{,}38\,s & 2{,}46\,s & 39{,}75\,s & eingeschränkt \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Die \gls{stt}"=Verarbeitung bleibt mit Werten zwischen 1,84\,s und 2,91\,s noch in einem vertretbaren Bereich. Auch die \gls{tts}"=Synthese verursacht im Vergleich zur Gesamtantwortzeit nur einen kleineren Anteil der Verzögerung. Der entscheidende Engpass liegt dagegen eindeutig in der \gls{llm}"=Inferenz. Bereits bei kurzen Eingaben benötigt das Sprachmodell mehrere Sekunden, bei komplexeren Anfragen steigt die Verarbeitungszeit deutlich an.
+
+Diese Entwicklung wirkt sich direkt auf die wahrgenommene Nutzbarkeit aus. Während einfache und kurze Eingaben noch eine brauchbare Antwortqualität erreichen, führen längere oder erklärungsbedürftigere Anfragen zu deutlich höheren Antwortzeiten. Bei den Eingaben 3 bis 5 wurde die Antwortqualität daher als eingeschränkt bewertet. Diese Bewertung bezieht sich nicht nur auf die inhaltliche Qualität der erzeugten Antwort, sondern auch auf die praktische Interaktion mit dem System. Antwortzeiten von über 30\,s unterbrechen den natürlichen Dialogfluss deutlich und entsprechen nicht mehr der Erwartung an einen alltagstauglichen Sprachassistenten.
+
+Auffällig ist außerdem die hohe Auslastung des Systems. Die durchschnittliche CPU"=Auslastung steigt über die Testfälle hinweg von 82\,\% auf 96\,\%. Gleichzeitig erhöht sich der gemessene Arbeitsspeicherbedarf von 2,42\,GB auf 2,74\,GB. Damit bleibt der Prototyp zwar innerhalb der verfügbaren Ressourcen des getesteten Raspberry Pi, arbeitet jedoch nahe an der praktischen Belastungsgrenze. Zusätzliche Hintergrundprozesse, eine umfangreichere Systemintegration oder größere Modelle würden die Stabilität und Reaktionsfähigkeit voraussichtlich weiter beeinträchtigen.
+
+Der Test auf dem Raspberry Pi 4 Model B verdeutlicht damit die zentrale Herausforderung eines vollständig lokalen Sprachassistenten auf kompakter Hardware. Datenschutz und Offlinefähigkeit lassen sich technisch realisieren, erfordern jedoch deutliche Kompromisse bei Modellgröße, Antwortlänge und Verarbeitungsgeschwindigkeit. Für einfache Sprachbefehle oder kurze Wissensfragen ist der Betrieb grundsätzlich möglich. Für längere Dialoge oder anspruchsvollere Assistenzfunktionen reicht die Rechenleistung des Raspberry Pi 4 Model B in der getesteten Konfiguration jedoch nur eingeschränkt aus.
+
+
+\subsection{Asus F550CC}
+\todo{belegen}
+Der Asus F550CC bildet innerhalb der Evaluation eine mittlere Testplattform zwischen dem ressourcenbeschränkten Raspberry Pi 4 Model B und dem leistungsfähigeren MacBook Air M4. Im Gegensatz zum Raspberry Pi handelt es sich um ein älteres Notebook"=System, das zwar deutlich mehr Speicher und eine klassische x86"=Architektur bereitstellt, hinsichtlich Prozessorleistung und Energieeffizienz jedoch nicht mit aktueller Hardware vergleichbar ist. Dadurch eignet sich das Gerät, um zu untersuchen, ob ein lokal betriebener Sprachassistent auch auf älterer, aber noch alltagstauglicher Consumer"=Hardware sinnvoll ausgeführt werden kann.
+
+Das verwendete Testsystem basiert auf einem Intel Core i5"=3337U mit zwei physischen Prozessorkernen und vier Threads. Zusätzlich verfügt das Notebook über eine dedizierte NVIDIA GeForce GT 720M sowie 8\,GB Arbeitsspeicher. Damit stehen dem System im Vergleich zum Raspberry Pi mehr Speicherreserven und eine leistungsfähigere Prozessorarchitektur zur Verfügung. Die dedizierte GPU kam  bei der Spracherkennung und \gls{llm}"=Inferenz über CUDA zum Einsatz. Dadurch konnte die \gls{stt}"=Verarbeitung gegenüber einer reinen CPU"=Ausführung beschleunigt werden.
+
+Für den Asus F550CC wurde eine leistungsfähigere Konfiguration als auf dem Raspberry Pi verwendet. Als \gls{stt}"=Modell kam \texttt{faster"=Whisper"=small} zum Einsatz, da die Kombination aus x86"=Prozessor, größerem Arbeitsspeicher und CUDA"=Beschleunigung eine stabilere Ausführung ermöglichte. Für die Antwortgenerierung wurde das größere Qwen"=Modell mit 3 Milliarden Parametern verwendet.
+
+Aus den Messergebnisse der fünf Testeingaben in \autoref{tab:evaluation-asus-f550cc} lässt sich daran gut nachvollziehen, in welchem Umfang die CUDA"=beschleunigte Spracherkennung die Gesamtverarbeitung entlastet und welcher Anteil der Antwortzeit weiterhin durch die lokale \gls{llm}"=Inferenz entsteht.
+
+\begin{table}[H]
+  \centering
+  \caption{Durchschnittliche Evaluationswerte auf dem Asus F550CC}
+  \label{tab:evaluation-asus-f550cc}
+  \small
+  \begin{tabular}{c c c c c c c l}
+    \toprule
+    \textbf{Nr.}         &
+    \textbf{CPU}         &
+    \textbf{RAM}         &
+    \textbf{STT}         &
+    \textbf{\gls{llm}}   &
+    \textbf{TTS}         &
+    \textbf{Antwortzeit} &
+    \textbf{Antwortqualität}                                                                           \\
+    \midrule
+    1                    & 61\,\% & 4,18\,GB & 0,83\,s & 6,74\,s  & 0,91\,s & 8,48\,s  & gut           \\
+    2                    & 68\,\% & 4,36\,GB & 0,96\,s & 10,42\,s & 1,08\,s & 12,46\,s & gut           \\
+    3                    & 72\,\% & 4,49\,GB & 1,02\,s & 12,87\,s & 1,16\,s & 15,05\,s & gut           \\
+    4                    & 81\,\% & 4,82\,GB & 1,21\,s & 21,63\,s & 1,54\,s & 24,38\,s & eingeschränkt \\
+    5                    & 86\,\% & 5,07\,GB & 1,34\,s & 29,91\,s & 1,82\,s & 33,07\,s & eingeschränkt \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Die Messergebnisse zeigen, dass der Asus F550CC den Prototyp stabiler und mit geringeren Antwortzeiten ausführen kann als der Raspberry Pi 4 Model B. Besonders deutlich wird dies bei der \gls{stt}"=Verarbeitung. Durch die Nutzung von CUDA für \texttt{faster"=Whisper} liegen die durchschnittlichen Transkriptionszeiten zwischen 0,83\,s und 1,34\,s und damit deutlich niedriger als auf dem Raspberry Pi. Die Spracherkennung stellt auf diesem System daher keinen wesentlichen Engpass dar.
+
+Die \gls{tts}"=Synthese bleibt ebenfalls in einem vertretbaren Bereich. Ihre Verarbeitungszeiten steigen zwar mit längeren Antworten an, bleiben jedoch im Vergleich zur Gesamtantwortzeit gering. Der dominante Faktor ist auch auf dem Asus F550CC die lokale \gls{llm}"=Inferenz. Obwohl das größere Qwen"=Modell eine bessere inhaltliche Antwortqualität ermöglicht, steigen die Antwortzeiten bei komplexeren Eingaben deutlich an. Während kurze und mittlere Anfragen noch brauchbare Interaktionszeiten erreichen, führen längere erklärende Antworten zu Wartezeiten von über 20\,s beziehungsweise über 30\,s.
+
+Im Vergleich zum Raspberry Pi zeigt sich damit ein differenziertes Bild. Die höhere Speicherausstattung und die CUDA"=beschleunigte Spracherkennung verbessern die technische Nutzbarkeit des Systems deutlich. Gleichzeitig bleibt die ältere CPU des Notebooks ein begrenzender Faktor für die lokale Ausführung des Sprachmodells. Für kurze Wissensfragen und einfache Interaktionen ist der Prototyp auf dem Asus F550CC grundsätzlich nutzbar. Bei längeren Anfragen wird der Dialogfluss jedoch weiterhin spürbar unterbrochen, weshalb die Antwortqualität in den letzten beiden Testfällen trotz besserer Modellgröße als eingeschränkt bewertet wurde.
+
+Der Test verdeutlicht, dass ältere Notebook"=Hardware eine realistischere lokale Ausführung ermöglicht als ein Raspberry Pi 4 Model B, jedoch noch keine durchgehend flüssige Sprachinteraktion bietet. Die Auslagerung der \gls{stt}"=Verarbeitung auf CUDA reduziert zwar die Latenz eines einzelnen Verarbeitungsschritts, löst aber nicht den zentralen Engpass der \gls{llm}"=Inferenz. Damit eignet sich der Asus F550CC als Zwischenlösung für einfache lokale Sprachassistenzfunktionen, zeigt aber zugleich, dass eine praxistaugliche Offline"=Alternative zu cloud"=basierten Systemen stark von der verfügbaren Hardware und der gewählten Modellgröße abhängt.
+
+
 \subsection{Macbook Air M4}
-\subsection{Beelink GT9 Pro}
+Das MacBook Air M4 stellt innerhalb der Evaluation die leistungsfähigste Testplattform dar. Im Unterschied zum Raspberry Pi 4und zum Asus F550CC handelt es sich um ein aktuelles Notebook"=System mit moderner ARM"=Architektur, hoher Energieeffizienz und integrierter Grafikbeschleunigung. Dadurch eignet sich das Gerät als Referenzsystem, um zu untersuchen, welches Leistungsniveau der Prototyp auf aktueller Consumer"=Hardware erreichen kann.
+
+Das verwendete Testsystem basiert auf dem Apple M4"=Chip. Dieser verfügt über eine 10"=Core"=CPU mit vier Performance"=Kernen und sechs Effizienz"=Kernen, eine integrierte GPU mit je nach Modell 8 oder 10 Kernen sowie eine 16"=Core Neural Engine. Apple gibt für das MacBook Air M4 außerdem eine Speicherbandbreite von 120\,GB/s an \autocite{Apple-MacBook-Air-M4-Specs}. Im Vergleich zu den beiden anderen Testsystemen bietet das MacBook damit deutlich höhere Rechenleistung und eine eng integrierte Speicherarchitektur.
+
+Für das MacBook Air M4 wurde die leistungsfähigste Konfiguration des Prototyps verwendet. Die Spracherkennung erfolgte mit \texttt{faster"=Whisper"=largeV3}. Die \gls{stt}"=Verarbeitung lief im Gegensatz zum ASUS F550CC auf der CPU. Für die \gls{llm}"=Inferenz wurde dagegen die Metal"=Beschleunigung von \texttt{llama.cpp} genutzt. Damit konnte das Qwen"=Modell mit 7 Milliarden Parametern genutzt werden. Der Kontextumfang und die maximale Anzahl der generierten Tokens blieben gegenüber der Standardkonfiguration des Prototyps unverändert, da das MacBook Air M4 ausreichend Ressourcen für diese Einstellungen bereitstellte.
+
+Die Messergebnisse der fünf Testeingaben geben in \autoref{tab:evaluation-macbook-air-m4} ein klares Indiz dafür, dass das MacBook Air M4 den Prototyp insgesamt am stabilsten und mit der besten Antwortqualität ausführen konnte.
+
+\begin{table}[H]
+  \centering
+  \caption{Durchschnittliche Evaluationswerte auf dem MacBook Air M4}
+  \label{tab:evaluation-macbook-air-m4}
+  \small
+  \begin{tabular}{c c c c c c c l}
+    \toprule
+    \textbf{Nr.}         &
+    \textbf{CPU}         &
+    \textbf{RAM}         &
+    \textbf{STT}         &
+    \textbf{\gls{llm}}   &
+    \textbf{TTS}         &
+    \textbf{Antwortzeit} &
+    \textbf{Antwortqualität}                                                                                \\
+    \midrule
+    1                    & 92{,}51\,\% & 2{,}79\,GB & 1{,}05\,s & 1{,}08\,s & 3{,}79\,s  & 6{,}08\,s  & gut \\
+    2                    & 65{,}54\,\% & 2{,}28\,GB & 1{,}17\,s & 1{,}69\,s & 10{,}32\,s & 13{,}31\,s & gut \\
+    3                    & 63{,}20\,\% & 2{,}44\,GB & 1{,}18\,s & 1{,}72\,s & 9{,}81\,s  & 12{,}87\,s & gut \\
+    4                    & 65{,}60\,\% & 2{,}38\,GB & 1{,}46\,s & 1{,}96\,s & 12{,}24\,s & 15{,}80\,s & gut \\
+    5                    & 67{,}66\,\% & 2{,}38\,GB & 1{,}27\,s & 1{,}75\,s & 8{,}93\,s  & 12{,}10\,s & gut \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Besonders deutlich wird der Vorteil des MacBooks bei der \gls{llm}"=Inferenz. Während die lokale Generierung auf dem Raspberry Pi und dem Asus F550CC den größten Anteil der Gesamtantwortzeit verursachte, liegen die durchschnittlichen \gls{llm}"=Zeiten auf dem MacBook Air M4 nur zwischen 1,08\,s und 1,96\,s. Die Nutzung von Metal reduziert die Verzögerung der Sprachmodellverarbeitung damit deutlich und macht die lokale Inferenz auf aktueller Hardware praktisch nutzbar.
+
+Die \gls{stt}"=Verarbeitung liegt trotz reiner CPU"=Ausführung mit Werten zwischen 1,05\,s und 1,46\,s ebenfalls in einem stabilen Bereich. Damit zeigt sich, dass die fehlende CUDA"=Unterstützung auf dem MacBook Air M4 in dieser Konfiguration keinen wesentlichen Nachteil darstellt. Die CPU"=Leistung reicht aus, um \texttt{faster"=Whisper"=LargeV3} zuverlässig und mit geringer Verzögerung auszuführen.
+
+Auffällig ist dagegen der hohe Anteil der \gls{tts}"=Synthese an der Gesamtantwortzeit. Während die \gls{llm}"=Inferenz auf dem MacBook Air M4 stark beschleunigt wird, benötigt die Sprachausgabe je nach Länge der Antwort zwischen 3,79\,s und 12,24\,s. Damit verschiebt sich der zentrale Engpass gegenüber den anderen Testsystemen: Nicht mehr das Sprachmodell, sondern die Erzeugung der gesprochenen Antwort bestimmt den größten Teil der wahrgenommenen Wartezeit.
+
+\todo{bearbeiten}
+Der Arbeitsspeicherbedarf bleibt über alle Testfälle hinweg moderat und liegt zwischen 2,28\,GB und 2,79\,GB. Die CPU"=Auslastung fällt insbesondere beim ersten Testsatz mit 92,51\,\% hoch aus, bewegt sich bei den übrigen Eingaben jedoch im Bereich von etwa 63\,\% bis 68\,\%. Die höhere Auslastung ist vor allem durch die lokal ausgeführte \gls{stt}"= und \gls{tts}"=Verarbeitung erklärbar, während die \gls{llm}"=Inferenz durch Metal teilweise auf die integrierte GPU ausgelagert wird.
+
+Insgesamt zeigt der Test auf dem MacBook Air M4, dass ein lokal betriebener Sprachassistent auf aktueller Consumer"=Hardware technisch sehr gut realisierbar ist. Die Antwortqualität wurde bei allen fünf Testeingaben als gut bewertet, da das größere Qwen"=Modell verwendet werden konnte und die Antwortgenerierung ausreichend schnell erfolgte. Für eine vollständig natürliche Sprachinteraktion bleiben die Antwortzeiten jedoch weiterhin spürbar, insbesondere durch die Dauer der Sprachausgabe. Das MacBook Air M4 bestätigt damit die grundsätzliche Machbarkeit des lokalen Ansatzes, zeigt aber zugleich, dass auch bei leistungsfähiger Hardware die Auswahl und Optimierung einzelner Komponenten entscheidend für die praktische Nutzbarkeit bleibt.
+
+
+\subsection{Bewertung des Hardwaretests}
+Die Hardwaretests zeigen deutliche Unterschiede zwischen den drei untersuchten Systemen. Während der Prototyp auf allen Testplattformen grundsätzlich lauffähig war, unterscheiden sich die Antwortzeiten, die Ressourcenauslastung und die praktische Nutzbarkeit erheblich. Damit bestätigt die Evaluation, dass die technische Machbarkeit eines lokal betriebenen Sprachassistenten nicht allein von der gewählten Architektur abhängt, sondern stark durch die verfügbare Hardware und die darauf abgestimmte Modellkonfiguration bestimmt wird.
+
+Der Raspberry Pi 4 Model B zeigt dabei die stärksten Einschränkungen. Obwohl das System mit einer reduzierten Konfiguration betrieben wurde, lagen die Antwortzeiten deutlich über einem für natürliche Dialoge geeigneten Bereich. Besonders bei längeren oder erklärungsbedürftigeren Eingaben stieg die Verarbeitungszeit stark an. Der Raspberry Pi eignet sich damit zwar grundsätzlich für einfache lokale Sprachbefehle oder kurze Interaktionen, erreicht für einen allgemeinen Sprachassistenten jedoch nur eine eingeschränkte Nutzbarkeit.
+
+Der Asus F550CC erreichte bessere Ergebnisse als der Raspberry Pi. Die höhere Speicherausstattung, die x86"=Architektur und die Möglichkeit, \texttt{faster"=Whisper} über CUDA zu beschleunigen, wirkten sich insbesondere positiv auf die \gls{stt}"=Verarbeitung aus. Die Spracherkennung stellte auf diesem System keinen wesentlichen Engpass dar. Dennoch blieb die lokale \gls{llm}"=Inferenz der dominierende Faktor der Gesamtantwortzeit. Das größere Qwen"=Modell ermöglichte zwar eine bessere Antwortqualität, führte aber bei komplexeren Eingaben weiterhin zu deutlich spürbaren Wartezeiten. Der Asus F550CC zeigt damit, dass ältere Notebook"=Hardware eine bessere lokale Ausführung ermöglicht als ein Einplatinencomputer, für durchgehend flüssige Sprachinteraktionen jedoch nur eingeschränkt geeignet ist.
+
+Das MacBook Air M4 erzielte die insgesamt besten Ergebnisse. Die Nutzung von Metal für die \gls{llm}"=Inferenz reduzierte die Verarbeitungszeit des Sprachmodells deutlich. Damit zeigt das MacBook Air M4, dass ein lokal betriebener Sprachassistent auf aktueller Consumer"=Hardware technisch sehr gut umsetzbar ist. Die verbleibenden Verzögerungen entstehen weniger durch die grundsätzliche Machbarkeit lokaler Inferenz, sondern durch die Leistungsfähigkeit und Optimierung einzelner Komponenten.
+
+\todo{genauer}
+Damit beantworten die Hardwaretests einen wesentlichen Teil der Evaluationsfrage. Ein vollständig lokal betriebener Sprachassistent kann eine datenschutzfreundliche Alternative zu cloud"=basierten Systemen darstellen, sofern ausreichend leistungsfähige Hardware vorhanden ist oder der Funktionsumfang bewusst begrenzt wird. Für kompakte, ressourcenarme Geräte sind deutliche Kompromisse erforderlich. Für moderne Notebooks oder vergleichbar leistungsfähige Edge"=Geräte ist der Ansatz dagegen deutlich realistischer. Die Ergebnisse sprechen daher nicht gegen das Konzept eines Offline"=Sprachassistenten, zeigen aber, dass dessen Praxistauglichkeit wesentlich von einer geeigneten Kombination aus Hardware, Modellgröße und Beschleunigungstechnologie abhängt.
+
 
 \section{Vergleich mit Cloud-basierten Lösungen und DIY-Architekturen}
+Nach der hardwarebezogenen Evaluation des entwickelten Prototyps wird in den weiteren Abschnitten eine breitere Einordnung des Systems vorgenommen. Während die vorherigen Versuche vor allem die technische Ausführbarkeit auf unterschiedlichen lokalen Geräten betrachtet haben, rückt nun der Vergleich mit bestehenden Sprachassistenzlösungen in den Vordergrund.
+
+Es werden sowohl etablierte Cloud"=basierte Sprachassistenzsysteme als auch lokal betreibbare DIY"=Ansätze betrachtet. Cloud"=basierte Lösungen bieten in der Regel eine hohe Alltagstauglichkeit, ausgereifte Spracherkennung und eine tiefe Integration in bestehende Ökosysteme, setzen jedoch häufig eine Netzwerkverbindung und serverseitige Verarbeitung voraus. DIY"=Architekturen verfolgen dagegen meist einen stärker anpassbaren und transparenteren Ansatz, erfordern jedoch mehr technisches Verständnis bei Einrichtung, Betrieb und Wartung.
+
+
 \subsection{Alexa}
+Alexa ist eines der bekanntesten Beispiele für ein kommerzielles Cloud"=basiertes Sprachassistenzsystem. Der Assistent wird insbesondere über Amazon"=Echo"=Geräte genutzt und ist stark in das Amazon"=Ökosystem sowie in zahlreiche Smart"=Home"=Dienste eingebunden. Alexa verdeutlicht die datenschutzrechtlichen Herausforderungen cloudbasierter Sprachassistenzsysteme.
+
+Technisch folgt Alexa dem typischen Aufbau moderner Sprachassistenzsysteme. Das Gerät wartet zunächst auf ein definiertes Wake"=Word, meist \enquote{Alexa}. Amazon beschreibt, dass Echo"=Geräte das Aktivierungswort lokal erkennen und erst nach dessen Erkennung Audio an die Cloud übertragen wird. Die eigentliche Verarbeitung der Anfrage, also insbesondere Spracherkennung, Interpretation, Antwortgenerierung und Dienstintegration, erfolgt jedoch nicht auf dem Endgerät, sondern über Amazons Cloud"=Infrastruktur. Alexa kann so auf leistungsfähige serverseitige Modelle, umfangreiche Dienste und kontinuierlich aktualisierte Funktionen zugreifen. Für Nutzende führt dies zu kurzen Reaktionszeiten, hoher Erkennungsqualität und einer engen Integration in Smart"=Home"=Geräte, Musikdienste, Kalender, Einkaufsfunktionen und externe Skills.
+
+Aus funktionaler Sicht ist Alexa dem entwickelten Offline"=Prototypen deutlich überlegen. Das System ist auf den produktiven Alltagseinsatz ausgelegt, unterstützt eine Vielzahl an Geräten und bietet eine breite Palette vordefinierter Funktionen. Der Prototyp dieser Arbeit verfolgt dagegen einen bewusst reduzierten Ansatz. Funktionen wie Nutzerkonten, umfangreiche Smart"=Home"=Ökosysteme, Musikstreaming oder externe Dienste wurden nicht umgesetzt. Der zentrale Unterschied liegt im Umgang mit Sprachdaten. Bei Alexa entstehen durch die Cloud"=basierte Architektur Datenflüsse zwischen Endgerät, Anbieterinfrastruktur und angebundenen Diensten. Amazon stellt zwar Datenschutzfunktionen bereit, etwa die Möglichkeit, Sprachaufzeichnungen und Transkripte einzusehen oder zu löschen. Dennoch bleibt die Verarbeitung grundsätzlich an ein externes Ökosystem gebunden. Damit hängt die Kontrolle über Speicherung, Löschung, Weiterverarbeitung und Dienstintegration wesentlich von den Einstellungen und Praktiken des Anbieters ab. Datenschutzkritisch ist dabei nicht nur die einzelne Audioaufnahme, sondern auch die Möglichkeit, über wiederholte Interaktionen Nutzungsprofile, Routinen oder Haushaltskontexte abzuleiten.
+
+Diese Problematik wird auch durch regulatorische Auseinandersetzungen sichtbar. Die Federal Trade Commission warf Amazon im Zusammenhang mit Alexa unter anderem vor, Daten von Kindern und Sprachaufzeichnungen nicht angemessen gelöscht beziehungsweise länger als erforderlich aufbewahrt zu haben. Auch wenn solche Verfahren nicht bedeuten, dass jede Nutzung von Alexa automatisch unsicher ist, zeigen sie, dass Cloud"=basierte Sprachassistenzsysteme strukturell von vertrauensbasierten Anbieterbeziehungen geprägt sind. Nutzende müssen darauf vertrauen, dass Datenschutzoptionen technisch korrekt umgesetzt werden und dass erhobene Daten nur im angegebenen Umfang verwendet werden.
+
+Der entwickelte Offline"=Sprachassistent verfolgt an dieser Stelle einen anderen Ansatz. Durch die lokale Ausführung verlassen Sprachdaten das Gerät nicht. Dadurch reduziert sich die Abhängigkeit von externen Servern und die Angriffsfläche verschiebt sich von der Anbieterinfrastruktur auf das lokale System. Gleichzeitig entstehen neue Einschränkungen: Die Antwortqualität hängt stärker von der lokal verfügbaren Hardware und dem gewählten Modell ab, die Integration externer Dienste ist begrenzt und Aktualisierungen müssen manuell oder über selbst kontrollierte Mechanismen erfolgen. Während Alexa Funktionalität und Komfort priorisiert, priorisiert der Prototyp Datenminimierung, Transparenz und lokale Kontrollierbarkeit.
+
+
 \subsection{Siri}
-\subsection{Homeassistant Voice Assistant}
+Siri ist der Sprachassistent von Apple und unterscheidet sich in seiner Einordnung teilweise von Alexa. Während Alexa vor allem über separate Smart"=Speaker und eine breite Smart"=Home"=Einbindung wahrgenommen wird, ist Siri stärker in ein geschlossenes Geräte"= und Betriebssystemökosystem eingebettet. Der Assistent ist auf iPhone, iPad, Mac, Apple Watch, Apple TV und HomePod verfügbar und dadurch eng mit den jeweiligen lokalen Gerätefunktionen verknüpft. Für den Vergleich mit dem entwickelten Prototyp ist Siri daher besonders relevant, weil Apple stärker als andere Anbieter mit Datenschutz, lokaler Verarbeitung und kontrollierten Datenflüssen argumentiert.
+
+Aus technischer Sicht kombiniert Siri lokale und serverseitige Verarbeitung. Apple beschreibt, dass Anfragen nach Möglichkeit direkt auf dem Gerät verarbeitet werden. Dazu zählen beispielsweise bestimmte personalisierte Funktionen, bei denen lokale Informationen verwendet werden können, ohne diese vollständig an Apple"=Server zu übertragen \autocite{AppleSiriPrivacyCommitment}. Gleichzeitig weist Apple darauf hin, dass Siri"=Anfragen abhängig vom jeweiligen Gerät, der Funktion und den Einstellungen auch an Apple"=Server übertragen und dort verarbeitet werden können \autocite{AppleSiriDictationPrivacy}. Siri ist damit nicht als vollständig lokaler Sprachassistent einzuordnen, sondern als hybrides System, das lokale Verarbeitung mit Cloud"=Diensten verbindet.
+
+Dieser hybride Ansatz bietet aus Nutzersicht mehrere Vorteile. Durch die enge Integration in das Apple"=Ökosystem kann Siri auf Systemfunktionen, Kontakte, Kalender, Erinnerungen, Nachrichten, Mediensteuerung und weitere Dienste zugreifen. Gleichzeitig profitieren komplexere Anfragen von serverseitiger Verarbeitung und von Apples Infrastruktur. Im Vergleich zum entwickelten Offline"=Prototyp ist Siri daher funktional deutlich breiter aufgestellt. Der Prototyp beschränkt sich auf eine lokal ausgeführte Verarbeitungskette aus Wake"=Word"=Erkennung, Speech"=To"=Text, \gls{llm}"=Inferenz und Text"=To"=Speech. Siri hingegen ist in ein produktives Betriebssystemumfeld eingebunden und kann dadurch Aufgaben übernehmen, die über die reine Beantwortung freier Spracheingaben hinausgehen.
+
+Datenschutzbezogen nimmt Siri eine Zwischenposition ein. Apple betont, dass Siri"=Daten nicht mit der Apple"=ID verknüpft, sondern mit einer zufälligen, gerätegenerierten Kennung verarbeitet werden \autocite{ApplePrivacyFeatures}. Außerdem speichert Apple nach eigener Darstellung Audioaufnahmen von Siri"=Interaktionen standardmäßig nicht dauerhaft; eine Speicherung zur Verbesserung von Siri und Diktierfunktionen erfolgt nur, wenn Nutzende dem ausdrücklich zustimmen \autocite{AppleImproveSiriPrivacy}. Diese Maßnahmen reduzieren bestimmte Datenschutzrisiken gegenüber stärker Cloud"=zentrierten Architekturen, beseitigen sie jedoch nicht vollständig. Sobald Anfragen serverseitig verarbeitet werden, besteht weiterhin eine Abhängigkeit von der Anbieterinfrastruktur, den jeweiligen Datenschutzeinstellungen und der korrekten Umsetzung der zugesagten Schutzmechanismen.
+
+Auch bei Siri zeigen öffentliche Diskussionen und rechtliche Auseinandersetzungen, dass Sprachassistenzsysteme trotz Datenschutzmaßnahmen kritisch betrachtet werden. Im Jahr 2025 erklärte sich Apple zu einer Zahlung von 95 Millionen US"=Dollar bereit, um eine Sammelklage im Zusammenhang mit unbeabsichtigten Siri"=Aktivierungen und angeblichen Aufzeichnungen privater Gespräche beizulegen. Apple bestritt dabei ein Fehlverhalten und erklärte, Siri"=Daten weder verkauft noch für Marketingprofile verwendet zu haben \autocite{ReutersSiriSettlement}. Für die Bewertung im Rahmen dieser Arbeit ist weniger die juristische Bewertung dieses Falls entscheidend, sondern die damit sichtbar werdende strukturelle Problematik: Sprachassistenzsysteme befinden sich dauerhaft in einer potenziell sensiblen Umgebung und müssen deshalb besonders hohe Anforderungen an Datenminimierung, Transparenz und Kontrolle erfüllen.
+
+Im Vergleich zum entwickelten Offline"=Sprachassistenten zeigt Siri damit eine deutlich stärkere Annäherung an datenschutzfreundliche Prinzipien als rein Cloud"=zentrierte Lösungen. Besonders die lokale Verarbeitung bestimmter Anfragen, die Trennung von Siri"=Daten und Apple"=ID sowie die Opt"=in"=Regelung für gespeicherte Audioaufnahmen sind aus Datenschutzsicht relevante Schutzmaßnahmen. Dennoch bleibt Siri kein vollständig offlinefähiges System. Die Verarbeitung hängt weiterhin vom Apple"=Ökosystem ab, ist für Nutzende nur begrenzt technisch nachvollziehbar und kann je nach Anfrage eine serverseitige Verarbeitung erfordern.
+
+Der Prototyp dieser Arbeit verfolgt einen konsequenteren, aber funktional stärker begrenzten Ansatz. Da sämtliche Verarbeitungsschritte lokal ausgeführt werden, verlassen Sprachdaten das Gerät nicht. Dadurch entsteht eine höhere technische Kontrollierbarkeit des Datenflusses, allerdings auf Kosten von Komfort, Integrationsgrad und Antwortqualität. Siri verdeutlicht somit eine mögliche Zwischenlösung zwischen Cloud"=basiertem Komfort und lokaler Datenverarbeitung. Der Vergleich zeigt, dass Datenschutzmaßnahmen auch in kommerziellen Systemen zunehmend an Bedeutung gewinnen, ein vollständig nachvollziehbarer und offlinefähiger Betrieb jedoch weiterhin eher durch selbst kontrollierte Architekturen erreicht werden kann.
+
+
+\subsection{Home Assistant Voice Assistant}
+Der Home Assistant Voice Assistant, häufig unter der Bezeichnung Assist geführt, nimmt im Vergleich zu Alexa und Siri eine andere Rolle ein. Während Alexa und Siri kommerzielle Sprachassistenzsysteme großer Plattformanbieter sind, ist Assist Teil der Open"=Source"=Smart"=Home"=Plattform Home Assistant. Der Assistent ist damit nicht primär als allgemeiner digitaler Alltagsassistent konzipiert, sondern als sprachbasierte Schnittstelle zur Steuerung eines selbst verwalteten Smart"=Home"=Systems. Für den Vergleich mit dem entwickelten Prototyp ist dieser Ansatz besonders relevant, da Home Assistant ebenfalls stärker auf lokale Kontrolle, Anpassbarkeit und Datenschutz ausgerichtet ist \autocite{HomeAssistantAssistDocumentation}.
+
+Assist kann nach Angaben der Home"=Assistant"=Dokumentation vollständig auf eigener Hardware betrieben werden. In einer lokalen Konfiguration werden Sprachaufnahme, Speech"=To"=Text, Intent"=Verarbeitung und Text"=To"=Speech innerhalb der eigenen Home"=Assistant"=Installation ausgeführt, ohne dass Sprachbefehle zur Verarbeitung an externe Server übertragen werden müssen \autocite{HomeAssistantLocalVoiceAssistant}. Damit unterscheidet sich Assist deutlich von typischen Cloud"=basierten Sprachassistenzsystemen. Gleichzeitig bleibt die lokale Ausführung optional: Home Assistant unterstützt auch die Nutzung von Home Assistant Cloud, um Spracherkennung und Sprachausgabe auf weniger leistungsfähiger Hardware auszuführen oder eine höhere Genauigkeit und einfachere Einrichtung zu erreichen \autocite{HomeAssistantVoicePreviewEdition}. Assist ist daher weniger als rein lokales System zu verstehen, sondern als flexible Architektur, bei der Nutzende zwischen lokaler Verarbeitung und Cloud"=Unterstützung wählen können.
+
+Technisch ähnelt die lokale Assist"=Pipeline in mehreren Punkten dem in dieser Arbeit entwickelten Prototyp. Home Assistant beschreibt für den vollständig lokalen Betrieb eine Verarbeitungskette, bei der eine Spracheingabe zunächst durch ein Mikrofon erfasst, anschließend lokal in Text umgewandelt, durch Home Assistant interpretiert und danach über eine lokale Text"=To"=Speech"=Komponente beantwortet wird \autocite{HomeAssistantLocalVoiceAssistant}. Für lokale Speech"=To"=Text"=Verarbeitung werden unter anderem Whisper beziehungsweise Speech"=To"=Phrase genannt, während für lokale Sprachausgabe Piper eingesetzt werden kann \autocite{HomeAssistantLocalVoiceAssistant,HomeAssistantSpeechToPhrase}. Auch Wake"=Word"=Erkennung wird unterstützt; Home Assistant verweist dabei auf die Möglichkeit, eigene Wake"=Words zu erstellen, unter anderem auf Basis von openWakeWord \autocite{HomeAssistantWakeWord}. Dadurch zeigt Assist, dass eine lokale Sprachverarbeitung im Smart"=Home"=Kontext praktisch umsetzbar ist und nicht ausschließlich auf proprietäre Cloud"=Dienste angewiesen sein muss.
+
+Im Vergleich zum entwickelten Prototyp besitzt Assist eine deutlich stärkere Einbindung in konkrete Smart"=Home"=Funktionen. Home Assistant verfügt über eine große Zahl an Integrationen für Geräte, Räume, Automationen und Sensoren. Sprachbefehle werden daher nicht nur als freie Texteingaben verarbeitet, sondern können direkt mit bestehenden Entitäten und Automationen innerhalb des Smart Homes verknüpft werden. Der Prototyp dieser Arbeit verfolgt dagegen einen allgemeineren und stärker experimentellen Ansatz. Er demonstriert eine lokal ausgeführte Verarbeitungskette aus Wake"=Word"=Erkennung, Speech"=To"=Text, lokalem \gls{llm} und Text"=To"=Speech, ist jedoch nicht tief in eine Smart"=Home"=Plattform eingebunden. Dadurch ist der Prototyp flexibler in der freien Antwortgenerierung, aber weniger ausgereift bei der Steuerung realer Geräte.
+
+Datenschutzbezogen ist Home Assistant Assist dem entwickelten Artefakt deutlich näher als Alexa oder Siri. Durch den vollständig lokalen Betrieb können Sprachdaten grundsätzlich im eigenen Netzwerk verbleiben. Dies entspricht dem Prinzip der Datenminimierung, da eine externe Übertragung nicht erforderlich ist, sofern die lokale Pipeline genutzt wird. Gleichzeitig hängt das tatsächliche Datenschutzniveau stark von der gewählten Konfiguration ab. Wird Home Assistant Cloud verwendet, verlassen Sprachdaten zumindest zur Verarbeitung die eigene lokale Umgebung, auch wenn Home Assistant den Dienst als privatheitsorientierte Alternative beschreibt \autocite{HomeAssistantVoicePreviewEdition}. Damit unterscheidet sich Assist von einem konsequent offline betriebenen Prototypen, bei dem keine Cloud"=Option vorgesehen ist und alle Verarbeitungsschritte lokal ausgeführt werden.
+
+Ein weiterer Unterschied liegt im Grad der technischen Zugänglichkeit. Home Assistant Assist bietet durch seine Open"=Source"=Ausrichtung und seine modulare Pipeline eine hohe Transparenz und Anpassbarkeit. Gleichzeitig erfordert die Einrichtung eines vollständig lokalen Sprachassistenten mehr technisches Verständnis als die Nutzung kommerzieller Systeme. Die Dokumentation nennt verschiedene Voraussetzungen, etwa eine Home"=Assistant"=Installation, geeignete Audiohardware sowie lokal ausführbare Speech"=To"=Text"= und Text"=To"=Speech"=Komponenten \autocite{HomeAssistantLocalVoiceAssistant}. Auch die Leistungsfähigkeit der Hardware ist relevant. Für die Home Assistant Voice Preview Edition wird darauf hingewiesen, dass ein vollständig lokaler Betrieb leistungsfähigere Home"=Assistant"=Hardware erfordern kann, während cloudgestützte Verarbeitung auf schwächerer Hardware einfacher nutzbar ist \autocite{HomeAssistantVoicePreviewEditionBlog}. Diese Abhängigkeit von Hardwareleistung entspricht den Ergebnissen der eigenen Evaluation, in der lokale Sprachverarbeitung insbesondere auf ressourcenschwächeren Geräten zu längeren Antwortzeiten und reduzierten Modellgrößen führte.
+
+Home Assistant Assist zeigt damit eine praxisnahe Alternative zwischen kommerziellen Cloud"=Assistenten und einem vollständig selbst entwickelten Offline"=Prototypen. Im Vergleich zu Alexa und Siri bietet Assist mehr Kontrolle über Datenflüsse, eine offenere Architektur und die Möglichkeit eines vollständig lokalen Betriebs. Im Vergleich zum Prototypen dieser Arbeit ist Assist jedoch stärker auf Smart"=Home"=Steuerung spezialisiert und weniger auf freie dialogische Interaktion mit einem lokal ausgeführten \gls{llm} ausgerichtet. Der entwickelte Prototyp ergänzt diese Perspektive, indem er untersucht, wie eine unabhängige lokale Sprachassistenzarchitektur außerhalb einer bestehenden Smart"=Home"=Plattform umgesetzt werden kann.
+
+Für die Bewertung des Artefakts ist Assist daher der naheliegendste Vergleichsfall unter den betrachteten Systemen. Während Alexa und Siri vor allem die Leistungsfähigkeit und Bequemlichkeit Cloud"=gestützter Plattformen zeigen, verdeutlicht Home Assistant Assist, dass lokale Sprachverarbeitung bereits in produktionsnahen DIY"=Systemen eingesetzt werden kann. Gleichzeitig macht der Vergleich sichtbar, dass lokale Verarbeitung nicht automatisch einfache Bedienbarkeit bedeutet. Datenschutzfreundliche Architektur, praktische Nutzbarkeit und geringer Einrichtungsaufwand stehen weiterhin in einem Spannungsverhältnis. Der Prototyp dieser Arbeit positioniert sich in diesem Spannungsfeld als bewusst reduziertes Artefakt, das die technische Machbarkeit einer vollständig lokalen Verarbeitungskette demonstriert und die damit verbundenen Grenzen transparent macht.
+
 
 \section{Use-Cases}
+
 \subsection{Smart-Home Steuerung}
 \subsection{Pflege}
 \subsection{Hausaufgaben Helfer}
-
