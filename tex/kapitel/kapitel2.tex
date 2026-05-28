@@ -1,4 +1,5 @@
 \chapter{Theoretische Grundlagen}
+\label{chap:Theoretische_Grundlagen}
 Moderne Sprachassistenzsysteme basieren auf dem Zusammenspiel zahlreicher komplexer Bausteine, die gemeinsam eine natürliche und effiziente Interaktion zwischen Mensch und Maschine ermöglichen \autocite{voiceassistantIntroduction}. Dabei kommen insbesondere Verfahren aus den Bereichen \gls{ki}, maschinellem Lernen und Sprachverarbeitung zum Einsatz \autocite{voiceassistantIntroduction,comprehensiveOverviewLLM}. Für ein fundiertes Verständnis der in den folgenden Kapiteln behandelten Konzepte und Implementierungen müssen zunächst grundlegende theoretische Ansätze dieser einzelnen Elemente erläutert werden.
 
 
@@ -14,7 +15,7 @@ Sprachassistenzsysteme finden heute in zahlreichen Bereichen Anwendung \autocite
 
 
 \section{Wake-Word-Erkennung}
-\label{sec:WakeWordErkennung}
+\label{sec:Wake-Word-Erkennung}
 Die Wake"=Word"=Erkennung kennzeichnet bei sprachbasierten Assistenzsystemen die erste technische und gleichzeitig interaktive Stufe der Sprachverarbeitung. Ein Wake"=Word, beispielsweise \enquote{Alexa}, \enquote{Hey Siri} oder \enquote{Ok Google}, dient als Aktivierungssignal, mit dem ein System erkennt, dass eine nachfolgende Äußerung an den Sprachassistenten gerichtet ist \autocite{tiredWakeWords}. Erst nach der Erkennung dieses Schlüsselwortes beginnt das System damit, die anschließende Spracheingabe als eigentlichen Befehl aufzunehmen und weiterzuverarbeiten \autocite{speechtoTextTexttoSpeechRecognition}. Damit übernimmt die Wake"=Word"=Erkennung eine Filterfunktion und trennt alltägliche Hintergrundgespräche von Befehls"= und Fragesätzen, welche an das System gerichtet sind \autocite{tiredWakeWords}.
 
 Aus architektonischer Sicht wird die Wake"=Word"=Erkennung typischerweise vor der eigentlichen Speech"=To"=Text"=Verarbeitung platziert \autocite{speechtoTextTexttoSpeechRecognition}. Während automatische Transkribiersysteme gesprochene Sprache in Text umwandeln und dabei akustische Modellierung, Sprachmodellierung und Dekodierung einsetzen, ist die Wake"=Word"=Erkennung stärker auf die robuste Erkennung eines sehr kleinen, fest definierten Vokabulars spezialisiert  \autocite{tiredWakeWords,speechtoTextTexttoSpeechRecognition}. Sie muss daher nicht jede gesprochene Äußerung vollständig verstehen, sondern lediglich entscheiden, ob ein bestimmtes Aktivierungswort im Audiosignal enthalten ist. Zur Erkennung solcher Sprachaktivität wird häufig auch \gls{vad} eingesetzt, welche Sprachabschnitte innerhalb eines Audiosignals identifiziert und damit den Beginn beziehungsweise das Ende einer Spracheingabe bestimmt \autocite{tiredWakeWords}.
@@ -47,7 +48,7 @@ Für Sprachassistenten besitzt \gls{stt} damit eine Schlüsselrolle. Die Qualit�
 
 
 \section{Large Language Models}
-\label{sec:Large Language Models}
+\label{sec:Large_Language_Models}
 \glspl{llm} sind große neuronale Sprachmodelle, die natürliche Sprache analysieren und generieren können. Sie stellen eine Weiterentwicklung klassischer Sprachmodelle dar und basieren heute meist auf der Transformer"=Architektur. Durch das Training auf sehr großen Textmengen lernen sie sprachliche Muster, semantische Zusammenhänge und kontextabhängige Beziehungen zwischen Wörtern und Sätzen \autocite{comprehensiveOverviewLLM}.
 
 Die Leistungsfähigkeit moderner \glspl{llm} beruht auf drei wichtigen Entwicklungen: der Transformer"=Architektur, stark gestiegener Rechenleistung und der Verfügbarkeit großer Trainingsdatensätze \autocite{comprehensiveOverviewLLM}. Während frühere Sprachmodelle häufig auf statistischen Verfahren oder kleineren neuronalen Netzen basierten, können heutige \glspl{llm} mit Milliarden von Parametern trainiert werden. Die Parameter speichern dabei keine festen Fakten wie in einer Datenbank, sondern modellieren Zusammenhänge innerhalb von Sprache. Vereinfacht ausgedrückt berechnet ein \gls{llm}, welches nächste Token in einem gegebenen Kontext wahrscheinlich ist \autocite{comprehensiveOverviewLLM}. Tokens sind dabei die kleinsten Verarbeitungseinheiten des Modells und können Wörter, Wortteile, Zeichen oder Symbole sein. Die Tokenisierung ist daher ein bedeutender Vorverarbeitungsschritt, bei dem Eingabetext in verarbeitbare Einheiten zerlegt wird \autocite{comprehensiveOverviewLLM,voiceassistantIntroduction}.
@@ -83,7 +84,7 @@ Neben Sprachassistenzsystemen findet \gls{tts} auch in zahlreichen weiteren Bere
 
 
 \section{Datenschutzaspekte moderner Sprachassistenzsysteme}
-\label{sec:Datenschutzaspekte moderner Sprachassistenzsysteme}
+\label{sec:Datenschutzaspekte_moderner_Sprachassistenzsysteme}
 Die vorangehenden Kapitel haben bereits die technischen Grundlagen moderner Sprachassistenzsysteme erläutert. Aus einzelnen Aspekten wie der dauerhaften akustischen Umgebungserfassung, der cloudbasierten Verarbeitung oder der möglichen menschlichen Auswertung von Sprachdaten ergeben sich jedoch besondere Datenschutzrisiken \autocite{voiceassistantIntroduction}. Ebenfalls relevant ist, dass Sprache nicht nur den Inhalt einer Anfrage enthält, sondern auch Rückschlüsse auf Identität, Alter, Geschlecht, emotionale Verfassung oder Alltagssituationen ermöglichen kann \autocite{EDPBLeitlinienSprachassistenzsysteme}. Der europäische Datenschutzausschuss stellt deshalb klar, dass bei virtuellen Sprachassistenten die Verarbeitung personenbezogener Daten zum Kern der Dienstleistung gehört und die \gls{dsgvo} grundsätzlich anwendbar ist \autocite{EDPBLeitlinienSprachassistenzsysteme}.
 
 Gemäß Artikel 5 der \gls{dsgvo} müssen Anbieter daher mehrere Grundprinzipien beachten. Dazu gehören Transparenz, Zweckbindung, Datenminimierung, Speicherbegrenzung, Integrität und Vertraulichkeit. Nutzerinnen und Nutzer müssen verständlich darüber informiert werden, welche Daten erhoben werden, zu welchem Zweck sie verarbeitet werden, wie lange sie gespeichert bleiben und ob Dritte Zugriff erhalten. Gerade bei Sprachassistenzsystemen ist dies schwierig, weil neben der registrierten Hauptnutzerin oder dem Hauptnutzer auch Familienmitglieder, Gäste oder zufällig anwesende Personen erfasst werden können \autocite{EDPBLeitlinienSprachassistenzsysteme}. Die \gls{bfdi} weist deshalb darauf hin, dass auch andere Personen im Haushalt über die Nutzung solcher Systeme informiert werden sollten \autocite{BfDISprachassistenzsysteme}.
