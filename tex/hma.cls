@@ -664,3 +664,6 @@ intoc=true]%
 \newcommand{\ipa}[1]{%
   {\fontfamily{cmr}\selectfont\textipa{#1}}%
 }
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{microtype}
