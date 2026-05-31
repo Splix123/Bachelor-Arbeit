@@ -1,21 +1,57 @@
 \chapter{Fazit und Ausblick}
-\section{Ergebnisinterpretation}
+\label{chap:Fazit_und_Ausblick}
+Abschließend für die Arbeit werden die zentralen Ergebnisse der Konzeption, prototypischen Umsetzung und Evaluation zusammengefasst. Es wird reflektiert, inwiefern die Forschungsfragen beantwortet und die Ziele der Arbeit erreicht wurden, aber auch welche Limitationen es gab.
 
+
+\section{Ergebnisinterpretation}
+\label{sec:Ergebnisinterpretation}
+Die Ergebnisse der Arbeit zeigen, dass ein lokal betriebener Sprachassistent technisch gut realisierbar ist und eine ernstzunehmende Alternative zu cloudbasierten Sprachassistenzsystemen darstellen kann. Der entwickelte Prototyp konnte die wesentlichen Verarbeitungsschritte einer Sprachinteraktion vollständig lokal ausführen. Dazu gehören die Erkennung eines Wake"=Words, die Umwandlung gesprochener Sprache in Text, die Antwortgenerierung durch ein lokales \gls{llm} sowie die anschließende Sprachausgabe. Damit wurde gezeigt, dass die grundlegende Funktionalität moderner Sprachassistenzsysteme nicht zwangsläufig an eine Cloud"=Infrastruktur gebunden ist.
+
+Gleichzeitig zeigen die Ergebnisse, dass die lokale Verarbeitung mit deutlich höheren Anforderungen an die eingesetzte Hardware verbunden ist. Insbesondere die \gls{llm}"=Inferenz stellt den ressourcenintensivsten Teil der Verarbeitungskette dar. Auf leistungsschwächerer Hardware kann dies zu spürbaren Wartezeiten führen, wodurch die Alltagstauglichkeit des Systems eingeschränkt wird. Ein lokaler Sprachassistent ist daher zwar grundsätzlich umsetzbar, erreicht seine praktische Nutzbarkeit aber vor allem auf Geräten mit ausreichender Rechenleistung und geeignetem Arbeitsspeicher.
+
+Die Bewertung fällt daher differenziert aus. Der Offline"=Ansatz bietet klare Vorteile bei Datenschutz, Datenminimierung und Unabhängigkeit von externen Diensten. Funktional und hinsichtlich der Reaktionsgeschwindigkeit bleibt er jedoch abhängig von der verfügbaren Hardware. Während aktuelle leistungsfähige Geräte bereits zeigen, dass eine flüssige Nutzung möglich ist, sind sehr kostengünstige oder ältere Systeme nur eingeschränkt geeignet. Damit liegt die zentrale Herausforderung weniger in der grundsätzlichen Umsetzbarkeit, sondern in der Frage, wie lokale Sprachverarbeitung effizient genug auf bezahlbarer Hardware betrieben werden kann.
+
+Mit Blick auf die weitere technische Entwicklung ist jedoch davon auszugehen, dass diese Einschränkung an Bedeutung verlieren kann. Lokale KI"=Inferenz wird zunehmend durch effizientere Modelle, bessere Quantisierungsverfahren und leistungsfähigere, zugleich günstigere Hardware unterstützt. Dadurch erscheint es realistisch, dass in den kommenden Jahren kompakte und vergleichsweise kostengünstige Geräte entstehen können, die einen lokalen Sprachassistenten mit akzeptabler Latenz ausführen. Die Ergebnisse dieser Arbeit sprechen daher nicht gegen den lokalen Ansatz, sondern zeigen vor allem, dass er sich derzeit in einem Übergangsbereich zwischen prototypischer Machbarkeit und breiter Alltagstauglichkeit befindet.
 
 
 \section{Limitationen der Studie}
-\begin{itemize}
-  \item deaktivierbare Mikrofone
-  \item Nur Deuscth getestet aber englisch funktioniert meist besser
-  \item Für reales Produkt könnten spezialisierte Prozessoren benutzt werden (TPUs)
-  \item Englische TTS ist viel besser
-  \item Sattelite architektur?
-  \item externe dienste wie spotify?
-\end{itemize}
+\label{sec:Limitationen_der_Studie}
+Die Ergebnisse der Evaluation zeigen, dass ein lokal betriebener Sprachassistent grundsätzlich realisierbar ist und zentrale Anforderungen an Datenschutz und Offlinefähigkeit erfüllen kann. Gleichzeitig ist der entwickelte Prototyp als Forschungsartefakt im Rahmen einer Bachelorarbeit zu verstehen und erfüllt daher nicht alle Anforderungen eines produktiven Sprachassistenzsystems. Die Aussagekraft der Ergebnisse wird durch mehrere funktionale und technische Einschränkungen begrenzt.
+
+Eine erste Limitation betrifft die verwendete Hardware. Der Prototyp wurde auf allgemeiner verfügbarer Standardhardware getestet, jedoch nicht auf speziell für \gls{ki}"=Inferenz optimierten Prozessoren. Für ein reales Produkt könnten spezialisierte Beschleuniger, beispielsweise neuronale Recheneinheiten, eingesetzt werden. Solche Komponenten könnten insbesondere die lokale \gls{llm}"=Inferenz beschleunigen und den Energieverbrauch reduzieren. Die in dieser Arbeit gemessenen Antwortzeiten sind daher nicht als allgemeine Grenze lokaler Sprachassistenz zu verstehen, sondern als Ergebnis der konkret getesteten Hardware"=Konfigurationen.
+
+Darüber hinaus wurde der Prototyp im Rahmen der Evaluation nur in deutscher Sprache untersucht. Dies ist für den Kontext der Arbeit sinnvoll, begrenzt jedoch die Übertragbarkeit der Ergebnisse. Viele der eingesetzten Modelle sind in der Praxis stärker für englischsprachige Eingaben optimiert. Es ist daher möglich, dass Erkennungs- und Antwortqualität bei englischer Nutzung besser ausfallen würden.
+
+Eine weitere Einschränkung betrifft die Mikrofonsteuerung. Der Prototyp wurde softwareseitig so konzipiert, dass keine dauerhafte Speicherung von Audiodaten erfolgt und die Verarbeitung lokal bleibt. Eine physisch deaktivierbare Mikrofonlösung wurde jedoch nicht umgesetzt. Für ein reales datenschutzfreundliches Produkt wäre ein hardwareseitiger Mikrofonschalter sinnvoll, da er Nutzenden eine eindeutig nachvollziehbare Kontrolle über die Aufnahmefähigkeit des Systems geben würde. Die entwickelte Lösung adressiert Datenschutz damit vor allem auf Ebene der Softwarearchitektur, nicht jedoch vollständig auf Ebene der physischen Gerätekontrolle.
+
+Auch die gewählte Systemarchitektur stellt eine Begrenzung dar. Der Prototyp wurde als lokal zusammenhängendes System umgesetzt, bei dem die Verarbeitung auf dem jeweiligen Gerät erfolgt. Eine alternative Satellite"=Architektur wurde nicht praktisch untersucht. Dabei könnten mehrere einfache Aufnahmegeräte in unterschiedlichen Räumen Audiosignale erfassen und an einen lokalen zentralen Server im Heimnetz weiterleiten, auf dem rechenintensive Komponenten wie \gls{stt} oder \gls{llm}"=Inferenz ausgeführt werden. Ein solcher Ansatz könnte die Hardwareanforderungen an einzelne Endgeräte senken, würde aber neue Fragen hinsichtlich Netzwerksicherheit, Datenfluss, Latenz und Systemkomplexität aufwerfen.
+
+Ebenfalls nicht umgesetzt wurde eine Anbindung externer Dienste wie Musik"=Streaming, Kalender, Smart"=Home"=Plattformen oder Informationsdienste. Dadurch bleibt der Funktionsumfang des Prototyps bewusst begrenzt. Gerade solche Integrationen sind jedoch ein wesentlicher Bestandteil produktiver Sprachassistenzsysteme. Ihre Einbindung würde die Alltagstauglichkeit erhöhen, könnte aber zugleich den datenschutzfreundlichen Charakter des Systems abschwächen, da erneut Daten an externe Anbieter übertragen werden müssten. Die Arbeit bewertet daher vor allem die lokale Kernverarbeitung einer Sprachinteraktion, nicht die vollständige Dienstintegration eines marktreifen Assistenten.
+
+Schließlich ist zu berücksichtigen, dass die Evaluation unter kontrollierten Bedingungen durchgeführt wurde. Faktoren wie Hintergrundgeräusche, unterschiedliche Sprecherinnen und Sprecher, verschiedene Mikrofontypen, größere Gesprächshistorien oder längere Nutzungszeiträume wurden nicht systematisch untersucht. Die Ergebnisse zeigen daher die grundsätzliche Machbarkeit und die Leistungsfähigkeit des konkreten Prototyps, erlauben jedoch nur eingeschränkte Aussagen über Robustheit und Benutzerfreundlichkeit in einem langfristigen Alltagseinsatz.
 
 
 \section{Beitrag der Arbeit}
+\label{sec:Beitrag_der_Arbeit}
+Die Arbeit zeigt, dass ein datenschutzfreundlicher Sprachassistent mit heutigen Open"=Source"=Komponenten grundsätzlich vollständig lokal realisierbar ist. Damit leistet sie einen praktischen Beitrag zur Diskussion um Privacy by Design bei Sprachassistenzsystemen, weil Datenschutz nicht nur theoretisch betrachtet, sondern in einer konkreten Systemarchitektur umgesetzt wird. Der entwickelte Prototyp demonstriert, wie Wake"=Word"=Erkennung, Speech"=To"=Text, lokale \gls{llm}"=Inferenz und Text"=To"=Speech zu einer durchgängigen Offline"=Verarbeitungskette kombiniert werden können.
+
+Ergänzend wurde der Prototyp als installierbares Python"=Paket unter dem Namen \enquote{privo} über den Python Package Index (\url{https://pypi.org/project/privo/}) und Github (\url{https://github.com/Splix123/Privo})bereitgestellt. Weitere Forschung und Entwicklung zum Prototypen ist damit grundlegend erwünscht und soll anderen die Möglichkeit geben die Ergebnisse zu reproduzieren.
+
+Weiterhin zeigt die Umsetzung, dass verfügbare Open"=Source"=Komponenten grundsätzlich ausreichen, um eine sprachbasierte Interaktion ohne Cloud"=Anbindung zu realisieren. Die Arbeit liefert außerdem eine praxisnahe Bewertung der technischen Umsetzbarkeit. Durch die Evaluation auf unterschiedlicher Hardware wird sichtbar, welche Anforderungen ein lokaler Sprachassistent an Rechenleistung, Speicher und Antwortzeit stellt.
+
+Schliesslich unterstützt die Arbeit die vergleichende Betrachtung von Offline"=Ansätzen und cloudbasierten Sprachassistenzsystemen. Der entwickelte Prototyp erreicht nicht den Funktionsumfang etablierter Systeme wie Alexa oder Siri, verdeutlicht jedoch, dass datenschutzfreundliche Alternativen technisch möglich sind. Die Arbeit zeigt damit einen Entwicklungsweg für Sprachassistenzsysteme auf, bei denen lokale Datenverarbeitung, Nutzerkontrolle und technische Praktikabilität stärker in den Vordergrund rücken.
+
 
 
 
 \section{Forschungsausblick}
+\label{sec:Forschungsausblick}
+Aus den Ergebnissen dieser Arbeit ergeben sich mehrere Ansatzpunkte für zukünftige Forschung und Weiterentwicklung.
+
+Einer dieser Punkte betrifft die Evaluation in realitätsnäheren Nutzungssituationen. Die vorliegende Arbeit bewertet den Prototyp vor allem anhand technischer Kriterien wie Antwortzeiten, Hardwareanforderungen und funktionaler Umsetzbarkeit. Für weiterführende Arbeiten wäre es sinnvoll, zusätzlich nutzerzentrierte Kriterien einzubeziehen. Dazu zählen beispielsweise Verständlichkeit, wahrgenommene Reaktionsgeschwindigkeit, Vertrauen in das System und Akzeptanz im Alltag. Gerade bei Sprachassistenzsystemen ist nicht allein entscheidend, ob eine Anfrage technisch korrekt verarbeitet wird, sondern auch, ob sich die Interaktion für Nutzende natürlich, verlässlich und ausreichend schnell anfühlt.
+
+Ein weiterer Forschungsansatz liegt in der Optimierung der lokalen Verarbeitungskette. Die Evaluation hat gezeigt, dass ein vollständig lokal betriebener Sprachassistent grundsätzlich realisierbar ist, jedoch stark von der verfügbaren Hardware abhängt. Zukünftige Arbeiten könnten daher untersuchen, wie sich kleinere oder stärker quantisierte Modelle, spezialisierte Inferenz"=Beschleuniger und effizientere Laufzeitumgebungen auf Antwortzeit, Energieverbrauch und Antwortqualität auswirken. Besonders relevant wäre dabei die Frage, welche Mindesthardware erforderlich ist, um einen lokalen Sprachassistenten mit akzeptabler Latenz und stabiler Interaktionsqualität zu betreiben. Dadurch ließe sich genauer bestimmen, unter welchen technischen Bedingungen ein Offline"=Ansatz nicht nur prototypisch, sondern auch im Alltag praktikabel ist.
+
+Auch die Wirtschaftlichkeit eines solchen Systems stellt einen wichtigen Untersuchungsbereich dar. Während cloudbasierte Sprachassistenten einen erheblichen Teil der Rechenleistung auf serverseitige Infrastrukturen auslagern, verlagert ein lokaler Sprachassistent diese Anforderungen auf das Endgerät. Einerseits können laufende Kosten für Cloud"=Infrastruktur, Datenübertragung und externe API"=Dienste reduziert werden. Andererseits steigen die Anforderungen an die lokale Hardware, wodurch höhere Anschaffungskosten entstehen können. Für zukünftige Arbeiten wäre daher eine wirtschaftliche Bewertung sinnvoll, die Anschaffungskosten, Energieverbrauch, Modellaktualisierung und mögliche Einsparungen durch den Verzicht auf Cloud"=Dienste berücksichtigt. Eine solche Betrachtung könnte zeigen, ab welcher Hardware"= und Nutzungskonfiguration ein lokaler Sprachassistent wirtschaftlich tragfähig wird.
+
+Damit verbunden ist die Frage, wie sich der entwickelte Ansatz zu einem vollwertigen Produkt weiterentwickeln ließe. Der in dieser Arbeit entwickelte Prototyp zeigt die technische Machbarkeit einer lokalen Verarbeitungskette, ist jedoch noch kein produktionsreifes Sprachassistenzsystem. Für ein marktfähiges Produkt wären zusätzliche Anforderungen zu berücksichtigen. Dazu gehören eine robuste Fehlerbehandlung, komfortable Einrichtung, ein zuverlässiges Berechtigungskonzept sowie eine einfache Integration externer Dienste und Smart"=Home"=Schnittstellen.
