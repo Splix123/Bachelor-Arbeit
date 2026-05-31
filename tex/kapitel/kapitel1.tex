@@ -1,14 +1,37 @@
-\chapter{ Einleitung}
+\chapter{Einleitung}
+\label{chap:Einleitung}
+Sprachassistenzsysteme sind in den vergangenen Jahren zunehmend in den Alltag vieler Menschen integriert worden. Sie ermöglichen eine einfache Interaktion mit digitalen Diensten, da Anfragen nicht über Tastatur oder Bildschirm, sondern über gesprochene Sprache gestellt werden können. Daraus entstehen neue Möglichkeiten für die Steuerung von Geräten, den Zugriff auf Informationen und die Unterstützung in alltäglichen Situationen.
+
+Gleichzeitig wirft der Einsatz moderner Sprachassistenten grundlegende Fragen zum Umgang mit personenbezogenen Daten auf. Da Sprache häufig in privaten Umgebungen erfasst wird, können neben den eigentlichen Befehlen auch sensible Informationen betroffen sein. Viele etablierte Systeme basieren zudem auf cloudbasierten Architekturen, bei denen Audiodaten an externe Server übertragen und dort verarbeitet werden. Infolgedessen entstehen Interessenkonflikte zwischen hoher Funktionalität, komfortabler Nutzung und der Kontrolle über persönliche Daten.
+
+Vor diesem Hintergrund untersucht die vorliegende Arbeit, inwiefern ein lokal betriebener Sprachassistent eine datenschutzfreundliche Alternative zu cloudbasierten Systemen darstellen kann. Vorrangig ist dabei die Entwicklung und Bewertung eines prototypischen Offline"=Sprachassistenten, der zentrale Verarbeitungsschritte wie Wake"=Word"=Erkennung, Speech"=To"=Text, Sprachmodellverarbeitung und Text"=To"=Speech möglichst lokal ausführt.
+
+
 \section{Problemstellung}
-Test1
+\label{sec:Problemstellung}
+Cloudbasierte Sprachassistenzsysteme verbinden eine hohe Alltagstauglichkeit mit einer Architektur, bei der wesentliche Verarbeitungsschritte außerhalb des Endgeräts stattfinden. Für Nutzer ist dies meist kaum sichtbar, da die Interaktion unmittelbar über Sprache erfolgt und das System als geschlossenes Gesamtprodukt wahrgenommen wird. Gerade dadurch entsteht jedoch ein grundlegendes Problem: Die Verarbeitung von Sprache erfordert die Erfassung von Audiodaten, die häufig in besonders privaten Situationen stattfindet.
+
+Spracheingaben unterscheiden sich von vielen anderen Formen digitaler Interaktion, da sie nicht nur den ausdrücklich formulierten Befehl enthalten können. Auch Hintergrundgespräche, Umgebungsgeräusche oder situative Informationen können Teil der Aufnahme sein. Dadurch besteht das Risiko, mehr Informationen zu erfassen, als für die eigentliche Funktion erforderlich sind. Bei cloudbasierten Systemen verschärft sich diese Problematik, weil hier Audiodaten oder daraus abgeleitete Informationen an externe Dienste übertragen werden. Nutzer müssen sich damit darauf verlassen, dass Anbieter die Daten zweckgebunden, sicher und transparent verarbeiten.
+
+Für sensiblere Einsatzbereiche ist diese Abhängigkeit besonders problematisch. Sprachassistenten könnten in Haushalten, Pflegekontexten, Bildungssituationen oder bei assistiver Nutzung eingesetzt werden, sind aber nicht für diese datenschutztechnisch sensiblen Bereiche ausgelegt. Die zentrale Frage besteht daher nicht nur darin, ob Sprachassistenz technisch funktioniert, sondern unter welchen Bedingungen sie mit möglichst geringer Datenweitergabe realisiert werden kann.
+
 
 \section{Motivation}
-Test2
+\label{sec:Motivation}
+Die Motivation dieser Arbeit kommt aus der zunehmenden Bedeutung sprachbasierter Benutzerschnittstellen und den damit verbundenen Datenschutzfragen. Die Verbreitung von Sprachassistenten in privaten und kommerziellen Bereichen bringt den Anspruch, Alternativen zu cloudbasierten Systemen zu erforschen.
+
+In den letzten Jahren haben sich die technischen Voraussetzungen dafür deutlich verbessert. Moderne Verfahren zur Wake"=Word"=Erkennung, \gls{stt}"=Verarbeitung, lokale \gls{llm}"=Inferenz und \gls{tts}"=Synthese ermöglichen es, die wichtigsten Bestandteile einer Sprachinteraktion auch ohne Cloud"=Anbindung auszuführen. Daraus entsteht der Anspruch herauszufinden, inwiefern ein solcher Ansatz bereits mit verfügbarer Hardware realisierbar ist und welche Einschränkungen sich dabei hinsichtlich Nutzbarkeit ergeben.
+
 
 \section{Ziel der Arbeit}
-\begin{itemize}
-  \item Zeigen dass es möglich
-  \item software bauen die später auf verscheidenster Hardware läuft
-  \item zeigen dass es sinn hat
-\end{itemize}
+\label{sec:Ziel_der_Arbeit}
+Aus Problemstellung und Motivation ergibt sich das primäre Ziel, einen datenschutzfreundlichen Offline"=Sprachassistenten zu konzipieren, umzusetzen und hinsichtlich seiner praktischen Nutzbarkeit zu bewerten.
+
+Dies lässt sich in mehrere Teilaufgaben untergliedern. Zunächst müssen die technischen und datenschutzbezogenen Anforderungen an einen lokal betriebenen Sprachassistenten herausgearbeitet werden. Dazu gehört die Frage, welche Funktionen ein solcher Assistent mindestens bereitstellen muss, welche Komponenten für eine vollständige Sprachinteraktion erforderlich sind und welche nicht"=funktionalen Anforderungen sich aus dem Anspruch einer datenschutzfreundlichen und offlinefähigen Verarbeitung ergeben.
+
+Nach Bestimmung der Anforderungen soll ein tieferer Einblick in die Konzeption und Umsetzung gegeben werden. Behandelt werden vor allem die Auswahl und Integration der notwendigen Komponenten, sowie die Herausforderungen, die sich bei der Umsetzung eines solchen Systems ergeben.
+
+Ein weiteres Ziel besteht darin, den entwickelten Ansatz in den Kontext bestehender Sprachassistenzsysteme einzuordnen. Dafür reicht es nicht aus, den Prototyp isoliert zu betrachten. Vielmehr muss untersucht werden, wie sich ein Offline"=Sprachassistent gegenüber etablierten cloudbasierten Systemen sowie gegenüber aktuellen lokalen oder teil"=lokalen DIY"=Architekturen positioniert. Diese Einordnung ist notwendig, um die Stärken und Schwächen des gewählten Ansatzes nachvollziehbar bewerten zu können.
+
+Es soll demnach nicht um die Entwicklung eines vollständig produktionsreifen Systems gehen, sondern um einen funktionsfähigen Prototyp, mit dem die technische Machbarkeit, Praktikabilität und Grenzen eines lokalen Ansatzes untersucht werden können.
 
